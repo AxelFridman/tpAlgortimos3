@@ -1,0 +1,3 @@
+/Users/imac/Documents/tp1algo3/tpEjercicio1Version1/cmake-build-debug/CMakeFiles/rebuild_cache.dir
+/Users/imac/Documents/tp1algo3/tpEjercicio1Version1/cmake-build-debug/CMakeFiles/edit_cache.dir
+/Users/imac/Documents/tp1algo3/tpEjercicio1Version1/cmake-build-debug/CMakeFiles/tpEjercicio1Version1.dir
