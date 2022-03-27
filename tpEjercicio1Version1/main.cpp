@@ -22,5 +22,6 @@ int main() {
     tuple<int, string> tup = make_tuple(13,"hola prueba");
     std::cout << get<1>(tup) << std::endl;
     std::cout << "Hola mundo" << std::endl;
+    std::cout << "comoe stas" << std::endl;
     return 0;
 }
