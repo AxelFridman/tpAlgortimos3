@@ -1,3 +1,0 @@
-/home/juan/Dropbox/Backtracking/tp1algo3/cmake-build-debug/CMakeFiles/edit_cache.dir
-/home/juan/Dropbox/Backtracking/tp1algo3/cmake-build-debug/CMakeFiles/rebuild_cache.dir
-/home/juan/Dropbox/Backtracking/tp1algo3/cmake-build-debug/CMakeFiles/tp1algo3.dir
