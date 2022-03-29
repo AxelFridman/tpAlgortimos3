@@ -5,11 +5,9 @@
 
 void ejercicio1(Red& red);
 
-void buscarMaxInfl (set<int>& Q, set<int>& K, int infl, Red&);
+void buscarMaxInfl (set<int>& Q, vector<int>& K, int infl, Red&);
 
-int maxInfl(set<int>& K);
+vector<int> amigosDexEnY(int v, vector<int>& K, Red&);
 
-set<int >amigosDexEnY(int v, set<int>& K, Red&);
-
-int pasar(set<int>&, set<int>&, Red&);
+int agregarTodosLosKenQeInfluenciaK(set<int>&, vector<int>&, Red&);
 #endif //TPJUANEJ1_TP1_H

@@ -29,18 +29,12 @@ Red::Red(string archivo){
         int actor;
         entradaRed >> nada >> actor >> _p[actor-1];
     }
-    /*for (int i = 0; i < _N; ++i) {
-        cout << i+1 << " "  << _p[i] << endl;
-    }*/
     for (int i = 0; i < _M; ++i) {
         int actor1, actor2;
         entradaRed >> nada >> actor1 >> actor2;
         _Amistades [actor1-1][actor2-1] = true;
         _Amistades [actor2-1][actor1-1] = true;
     }
-    /*for (int i = 0; i < _N-1; ++i) for (int j = i+1; j < _N; ++j) if (_Amistades[i][j]) {
-        cout<<i+1<<" "<<j+1<<endl;
-    }*/
 }
 
 set<int> Red::usuarios() {
@@ -75,10 +69,12 @@ int Red::p(int i) {
     return _p[i-1];
 }
 
-bool Red::esClique(set<int> & K) {
-    for (int i: K)
-        for (int j: K)
-            if (i<j && !sonAmigos(i, j))
+bool Red::esClique(vector<int> & K) {
+    for (int i=0; i<K.size(); i++) {
+        for (int j=i+1; j<K.size(); j++) {
+            if (!sonAmigos(K[i], K[j]))
                 return false;
+        }
+    }
     return true;
 }

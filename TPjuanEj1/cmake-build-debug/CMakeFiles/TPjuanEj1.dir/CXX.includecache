@@ -16,14 +16,6 @@ red.h
 tp1.h
 /Users/imac/Documents/tp1algo3/TPjuanEj1/tp1.h
 
-/Users/imac/Documents/tp1algo3/TPjuanEj1/red.cpp
-iostream
--
-vector
--
-red.h
-/Users/imac/Documents/tp1algo3/TPjuanEj1/red.h
-
 /Users/imac/Documents/tp1algo3/TPjuanEj1/red.h
 vector
 -
@@ -31,18 +23,6 @@ fstream
 -
 set
 -
-
-/Users/imac/Documents/tp1algo3/TPjuanEj1/tp1.cpp
-set
--
-vector
--
-red.h
-/Users/imac/Documents/tp1algo3/TPjuanEj1/red.h
-iostream
--
-tp1.h
-/Users/imac/Documents/tp1algo3/TPjuanEj1/tp1.h
 
 /Users/imac/Documents/tp1algo3/TPjuanEj1/tp1.h
 red.h

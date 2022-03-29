@@ -20,7 +20,7 @@ public:
     int cantUsuarios();
     int cantAmistades();
     int p(int);
-    bool esClique(set<int>&);
+    bool esClique(vector<int>&);
 
 private:
     int _N;
