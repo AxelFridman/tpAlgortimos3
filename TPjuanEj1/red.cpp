@@ -22,7 +22,7 @@ Red::Red(string archivo){
     string nada;
     entradaRed >> nada >> nada >> _N >> _M;
 
-    //cout << "N: " << _N <<  " M: " << _M << endl;
+    cout << "N: " << _N <<  " M: " << _M << endl;
     _p = vector<int> (_N);
     _Amistades = vector<vector<bool>> (_N, vector<bool> (_N,false));
     for (int i = 0; i < _N; ++i) {
@@ -46,8 +46,9 @@ set<int> Red::usuarios() {
 }
 
 bool Red::sonAmigos(int i, int j) {
+    //cout<<"i: "<<i<<endl;
     if (i <= 0 || i > _N || j <= 0 || j > _N){
-        cout<<"NO EXISTEN ESOS USUARIOS"<< endl;
+        cout<<"NO EXISTEN ESOS USUARIOS: "<< i<< " " << j<< endl;
         exit(0);
     }
     return _Amistades[i-1][j-1];
