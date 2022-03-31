@@ -132,6 +132,13 @@ void ejercicio1(Red& red){ // La idea de esta funcion es que recibe el tipo red 
     //Siguiente linea solo para Windows
     cout<<"Tiempo: "<<double (t1-t0)/CLOCKS_PER_SEC<<endl;
 }
+int sumarInfluenciasDe(vector<int>& K, Red& red){
+    int res = 0;
+    for(int v: K){
+        res += red.p(v);
+    }
+    return res;
+}
 
 void buscarMaxInfl (set<int>& Q, vector<int>& K, int infl, Red& red){ // Funcion que busca maximique clique a tarves de ir partiendo todos los pendientes en si
                                                                       // los puedo agregar a mi clique o no e iterando.
@@ -142,6 +149,11 @@ void buscarMaxInfl (set<int>& Q, vector<int>& K, int infl, Red& red){ // Funcion
         }
     }
     else{ // Caso contrario en el que SI tengo a alguien que seria potencial para agregar a mi clique.
+        if(infl + sumarInfluenciasDe(K, red) < infl_max){
+            // Poda pedida en el tp para reducir espacio de busqueda
+            return;
+        }
+
         int v = K[0]; // Lo tomo a ese alguien como el mas influyente que tengo disponible.
         K.erase(K.begin()); // Y lo saco de los restantes
 
@@ -150,6 +162,7 @@ void buscarMaxInfl (set<int>& Q, vector<int>& K, int infl, Red& red){ // Funcion
         vector<int> Ki = amigosDexEnY(v,K, red); // tomo todos los amigos de la persona v en K, y me los guardo en Ki.
         int infli = infl + red.p(v); // Como esta es la rama en donde asumo que V es parte de la clique,
                                     // le agrego a la influencia actual la influencia de v
+
 
 
         if (red.esClique(Ki)){ // Si en Ki todos son amigos con todos debo actualizar influencia y ponerlos todos en Q
