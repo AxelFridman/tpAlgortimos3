@@ -3,6 +3,7 @@
 // ../instancias/instancia_2.txt
 
 #include "actividades_PD.h"
+#include <ctime>
 
 // TODO Emprolijar código
 // TODO Chequear complejidades
@@ -32,22 +33,34 @@ Actividades::Actividades(string archivo) {
         entradaActividades >> _S[i] >> _T[i] >> _B[i];
     }
     construirW(_W);
+    cout<<endl;
+    cout<<"Vector S: ";
     mostrarVector(_S);
+    cout<<"Vector T: ";
     mostrarVector(_T);
+    cout<<"Vector B: ";
     mostrarVector(_B);
+    cout<<"Vector W: ";
     mostrarVector(_W);
 }
 
 void Actividades::construirW(vector<int> &v) {
-    // TODO Usar una especie de búsqueda binaria
-    for (int i = 0; i < v.size(); ++i) {
-        bool b=true;
-        for (int j = i+1; j < v.size() && b; ++j) {
-            if (!haySolapamiento(i,j)){
-                v[i] = j;
-                b = false;
-            }
+    vector<int> bucket (2*_N+1, -1);
+    for (int i = _N - 1; 0 <= i; --i) {
+        bucket[_S[i]] = i;
+    }
+    int rem = _N;
+    for (int i = 2*_N; 0 <= i; --i) {
+        if (bucket[i] != -1){
+            int otro = bucket[i];
+            bucket[i] = rem;
+            rem = otro;
+        }else{
+            bucket[i] = rem;
         }
+    }
+    for (int i = 0; i < _N; ++i) {
+        v[i] = bucket[_T[i]];
     }
 }
 
@@ -55,41 +68,63 @@ int Actividades::cantActividades() const{
     return _N;
 }
 
-bool Actividades::haySolapamiento(int &i, int &j) const{
-    return _T[i] > _S[j];
-}
-
-int Actividades::buscarBeneficioMax(int i, vector<int>& v, int sum) {
-    /*if (_mem[i] != -1){
-        return _mem[i];
-    } else {*/
-        if (i==_N){
-            if (sumaMax < sum){
-                sumaMax = sum;
-                sol_optima = v;
-            }
-            return  sum;
-        }else {
-                if (_mem[i] == -1) {
-                    v.push_back(i);
-                    int b1 = buscarBeneficioMax(_W[i], v, sum + _B[i]);
-                    v.pop_back();
-                    int b2 = buscarBeneficioMax(i + 1, v, sum);
-                    //_mem[i] = max(buscarBeneficioMax(i), _B[i] + buscarBeneficioMax(_W[i]));
-                    _mem[i] = max(b1, b2);
-                }
-                return _mem[i];
+int Actividades::buscarBeneficioMax(int i) {
+    if (i==_N){
+        return  0;
+    } else {
+        if (_mem[i] == -1) {
+            int b1 = buscarBeneficioMax(_W[i])  + _B[i];
+            int b2 = buscarBeneficioMax(i + 1);
+            _mem[i] = max(b1, b2);
         }
+        return _mem[i];
+    }
 }
 
-
-
-int Actividades::ejer3_4() {
-    sumaMax = 0;
-    vector<int> sol;
-    return buscarBeneficioMax(0, sol, 0);
+void Actividades::ejer3_4() {
+    int res = buscarBeneficioMax(0);
+    cout<<"El maximo beneficio total es: "<< res <<endl;
 }
 
-void Actividades::mostrarSolucion() {
-    mostrarVector(sol_optima);
+void Actividades::ejer3_5() {
+    cout<<"La suma maxima es: "<<endl;
+    int res = bottom_up();
+    cout<< res<<endl;
+}
+
+void Actividades::reiniciarMem() {
+    _mem = vector<int> (_N,-1);
+}
+
+int Actividades::bottom_up() {
+    _mem[_N-1] = _B[_N-1];
+    for (int i = _N-2; i >= 0; --i) {
+        int b1 = _B[i];
+        if (_W[i] != _N)
+            b1 += _mem[_W[i]];
+        _mem[i] = max(b1,_mem[i+1]);
+    }
+    return _mem[0];
+}
+
+void Actividades::ejer3_6() {
+    cout<<"La suma maxima es "<< buscarBeneficioMax(0)<<endl;
+    cout<<"Las actividades correspondientes son: "<<endl;
+    vector<int> res = reConstruccionRes();
+    mostrarVector(res);
+}
+
+vector<int> Actividades::reConstruccionRes(){
+    vector<int> res;
+    int sumaMax = _mem[0];
+    for (int i = 1; i < _N && sumaMax > 0; ++i) {
+        if (_mem[i] < sumaMax){
+            res.push_back(i-1);
+            sumaMax -= _B[i-1];
+            i = _W[i-1];
+        }
+    }
+    if (sumaMax != 0)
+        res.push_back(_N-1);
+    return res;
 }

@@ -18,16 +18,10 @@ public:
     Actividades(string archivo);
     /* Constructor de actividades, lee el archivo de entrada e inicializa
      * las variables internas.
-     */
-
-
-    bool haySolapamiento(int& i, int& j) const;
-    /*
-     * Verifica si la actividad i-ésima se solapa con la actividad j-ésima
-     */
+    */
 
     int cantActividades() const;
-    int buscarBeneficioMax(int i, vector<int>&, int);
+    int buscarBeneficioMax(int i);
     /*
      * Busca el máximo beneficio entre todos los subconjuntos de
      * actividades compatibles incluidos en el máximo beneficio
@@ -35,26 +29,25 @@ public:
      * incluidos en A_i ... A_{n-1}
      */
 
-    int ejer3_4();
-    void mostrarSolucion();
+    void reiniciarMem();
+    void ejer3_4();
+    int bottom_up();
+    void ejer3_5();
+    vector<int> reConstruccionRes();
+    void ejer3_6();
 
 
 private:
     int _N; // cantidad de actividades
     vector<int> _S; // vector donde en la posición i-ésima indica
-                    // el tiempo de inicio de la actividad i
+    // el tiempo de inicio de la actividad i
     vector<int> _T; // vector donde en la posición i-ésima indica
-                    // el tiempo de terminación de la actividad i
+    // el tiempo de terminación de la actividad i
     vector<int> _B; // vector de beneficio
     vector<int> _W; // vector donde en la posición i-ésima indica
-                    // la primera actividad k que no se solapa con
-                    // la actividad i, con k > i. Si no existe, k=n.
+    // la primera actividad k que no se solapa con
+    // la actividad i, con k > i. Si no existe, k=n.
     vector<int> _mem;
-
-    int _maxBeneficio;
-    vector<int> sol_optima;
-
-    int sumaMax;
 
     void construirW(vector<int>&);
 };

@@ -198,5 +198,16 @@ int agregarTodosLosKenQeInfluenciaK(set<int>& Qi, vector<int>& Ki, Red& red){ //
     Ki.clear(); // vacio k para que sea conjunto vacio
     return res; // devuelvo la inflencia de todos los k originales juntos.
 }
+
+/*void pasarAlgunosKenQyActualizarInfluencia(vector<int> &K, set<int> &Q, int &inflDeQ, Red red){
+    for (int i = 0; i < K.size(); i++) {
+        for (int j = 0; j < ; ++j) {
+            
+        }{
+            
+        }       
+    }
+}*/
+
 // ../../instancias/brock200_1.clq
 // /Users/imac/Documents/tp1algo3/TPjuanEj1/instancias/brock200_1.clq
