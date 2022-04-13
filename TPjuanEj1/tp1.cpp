@@ -174,19 +174,18 @@ int agregarTodosLosKenQeInfluenciaK(set<int>& Qi, list<int>& Ki, Red& red){ //La
     return res; // devuelvo la inflencia de todos los k originales juntos.
 }
 
-bool sonTodosAmigosDe(int idx, list<int>& K, Red& red){
+bool sonTodosAmigosDeIter(list<int>::iterator it, list<int>& Ki, Red& red){
     // Devuelve true si todos los elementos de un vector de actores son amigos
     // del actor en la posicion i, ignorando todos los indices en usados
+    list<int>::iterator it2 = it;
+    it2 = next(it2, 1);
     bool res=true;
-    int j=0;
     // TODO: Completar una vez revisada la parte del codigo que usa esta funcion
-    /*while(j <= K.size() && res){
-        if(j != idx){
-            // Solo veo los elementos k_j de K que no hayan sido pasados a Q
-            res = res * red.sonAmigos(K[idx], K[j]);
-        }
-        j+=1;
-    }*/
+    while(it2 != Ki.end() && res){
+        // Solo veo los elementos k_j de K que no hayan sido pasados a Q
+        res = res * red.sonAmigos(*it, *it2);
+        it2 = next(it2, 1);
+    }
     return res;
 }
 
@@ -215,21 +214,27 @@ void buscarMaxInfl (set<int>& Q, list<int>& K, int infl, Red& red){ // Funcion q
         // le agrego a la influencia actual la influencia de v
         int infli = infl + red.p(v);
 
-        /*
+
         // TODO: Completar y revisar bien este caso
-         list<int>::iterator it = K.begin();
-        while (it != K.end())
-        {
-            if(sonTodosAmigosDe(it, K, red)){
-            {
-                //items.erase(it++);  // alternatively, i = items.erase(i);
-                Q.insert(K[i]);  // TODO: Qi o Q?
-                vector<int> K_ = amigosDexEnY(K[i], K, red);  // TODO: Revisar esto!
-                infli += red.p(K[i]); // TODO: infli o infl?
-                // Borra y mueve el puntero
-                it = K.erase(it);
+        bool activar_esto = false;
+        if (activar_esto){
+            list<int>::iterator it = Ki.begin();
+            while (it != Ki.end()){
+                if(sonTodosAmigosDeIter(it, Ki, red)){
+                    //items.erase(it++);  // alternatively, i = items.erase(i);
+                    Qi.insert(*it);
+                    // TODO: Tener cuidado con pisar Ki porque perdemos la consistencia con el iterador ya definido sobre el antiguo Ki
+                    //Ki = amigosDexEnY(*it, Ki, red);
+                    infli += red.p(*it);
+                    // Borra y mueve el puntero
+                    it = Ki.erase(it);
+                }
+                else{
+                    it = next(it, 1);
+                }
             }
-        }*/
+        }
+
 
         if (red.esClique(Ki)){ // Si en Ki todos son amigos con todos debo actualizar influencia y ponerlos todos en Q
             // TODO: Revisar red.esClique() para que no haga comparaciones repetidas
