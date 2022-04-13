@@ -1,1 +1,4 @@
-CMakeLists.txt not found in C:\Users\Paula\Dropbox\Facu 1er 2022\Algo3\TP1\tp1algo3\TPjuanEj1\cmake-build-debug Select CMakeLists.txt
+/snap/clion/184/bin/cmake/linux/bin/cmake -DCMAKE_BUILD_TYPE=Debug -G "CodeBlocks - Unix Makefiles" /home/jack/tp1algo3/TPjuanEj1
+-- Configuring done
+-- Generating done
+-- Build files have been written to: /home/jack/tp1algo3/TPjuanEj1/cmake-build-debug
