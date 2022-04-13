@@ -127,15 +127,15 @@ void ejercicio1(Red& red){ // La idea de esta funcion es que recibe el tipo red 
     red_global = red;
     K.sort(compare_actors_importances);
     K.reverse();
-    visualizarVector(K, red);
+    //visualizarVector(K, red);
     int infl = 0; // Seteo la influencia de la clique actual como  0
     infl_max = 0; // Y la influencia max global tambien.
     Q_max.clear(); // En caso de que me haya quedado algo guardado, repto que Qmax sea el conjunto vacio.
 
     buscarMaxInfl (Q, K, infl, red); // Y llamo a la funcion con los parametros 'completos'.
     // Esta funcion automaticamente actualizara qmax y infl_max entonces es solo cuestion de imprimirlos
-    cout<<"Influencia maxima es: "<<infl_max<<endl;
-    cout<<"La clique mas influyencte: ";
+    cout<<"Influencia máxima es: "<<infl_max<<endl;
+    cout<<"La clique más influyente: ";
     for (int i: Q_max) // Imprime todos los participantes de la clique mas influyente.
         cout<<i<<" ";
     cout<<endl;
@@ -174,6 +174,22 @@ int agregarTodosLosKenQeInfluenciaK(set<int>& Qi, list<int>& Ki, Red& red){ //La
     return res; // devuelvo la inflencia de todos los k originales juntos.
 }
 
+bool sonTodosAmigosDe(int idx, list<int>& K, Red& red){
+    // Devuelve true si todos los elementos de un vector de actores son amigos
+    // del actor en la posicion i, ignorando todos los indices en usados
+    bool res=true;
+    int j=0;
+    // TODO: Completar una vez revisada la parte del codigo que usa esta funcion
+    /*while(j <= K.size() && res){
+        if(j != idx){
+            // Solo veo los elementos k_j de K que no hayan sido pasados a Q
+            res = res * red.sonAmigos(K[idx], K[j]);
+        }
+        j+=1;
+    }*/
+    return res;
+}
+
 
 void buscarMaxInfl (set<int>& Q, list<int>& K, int infl, Red& red){ // Funcion que busca maximique clique a tarves de ir partiendo todos los pendientes en si
                                                                       // los puedo agregar a mi clique o no e iterando.
@@ -195,14 +211,29 @@ void buscarMaxInfl (set<int>& Q, list<int>& K, int infl, Red& red){ // Funcion q
         set<int> Qi = Q; // Me copio el set de la clique hasta el momento
         Qi.insert(v); // Solo que a esta le agrego ADEMAS  v, el mayor influyente disponible de los usuarios en este momento.
         list<int> Ki = amigosDexEnY(v,K, red); // tomo todos los amigos de la persona v en K, y me los guardo en Ki.
-        int infli = infl + red.p(v); // Como esta es la rama en donde asumo que V es parte de la clique,
-                                    // le agrego a la influencia actual la influencia de v
+        // Como esta es la rama en donde asumo que V es parte de la clique,
+        // le agrego a la influencia actual la influencia de v
+        int infli = infl + red.p(v);
 
-
-
-
+        /*
+        // TODO: Completar y revisar bien este caso
+         list<int>::iterator it = K.begin();
+        while (it != K.end())
+        {
+            if(sonTodosAmigosDe(it, K, red)){
+            {
+                //items.erase(it++);  // alternatively, i = items.erase(i);
+                Q.insert(K[i]);  // TODO: Qi o Q?
+                vector<int> K_ = amigosDexEnY(K[i], K, red);  // TODO: Revisar esto!
+                infli += red.p(K[i]); // TODO: infli o infl?
+                // Borra y mueve el puntero
+                it = K.erase(it);
+            }
+        }*/
 
         if (red.esClique(Ki)){ // Si en Ki todos son amigos con todos debo actualizar influencia y ponerlos todos en Q
+            // TODO: Revisar red.esClique() para que no haga comparaciones repetidas
+            // TODO: ie. que el for de adentro arranque desde el siguiente al de afuera
             infli += agregarTodosLosKenQeInfluenciaK(Qi, Ki, red);
         }
 

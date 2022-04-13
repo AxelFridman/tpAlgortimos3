@@ -16,7 +16,7 @@ int main(int argc, char** argv){
     //Red lared(argv[1]);
 
     //Red lared(archivo);
-    Red lared("../instancias/brock200_2.clq");
+    Red lared("../instancias/C125.9.clq");
     ejercicio1(lared);
 
     /*Actividades Actividades(archivo);
