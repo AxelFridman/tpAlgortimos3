@@ -21,6 +21,8 @@ public:
     int cantAmistades();
     int p(int);
     bool esClique(vector<int>&);
+    bool indicadosEsClique(vector<int>&, int, vector<int>&);
+    bool noIndicadosEsClique(vector<int>&, int, vector<int>&);
 
 private:
     int _N;

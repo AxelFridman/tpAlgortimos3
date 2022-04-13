@@ -22,7 +22,7 @@ Red::Red(string archivo){
     string nada;
     entradaRed >> nada >> nada >> _N >> _M;
 
-    cout << "N: " << _N <<  " M: " << _M << endl;
+    //cout << "N: " << _N <<  " M: " << _M << endl;
     _p = vector<int> (_N);
     _Amistades = vector<vector<bool>> (_N, vector<bool> (_N,false));
     for (int i = 0; i < _N; ++i) {
@@ -65,6 +65,7 @@ int Red::cantAmistades() {
 int Red::p(int i) {
     if (i <= 0 || i > _N){
         cout<<"NO EXISTE ESE USUARIO"<< endl;
+        cout << "Usuario: " << i << endl;
         exit(0);
     }
     return _p[i-1];
@@ -78,4 +79,45 @@ bool Red::esClique(vector<int> & K) {
         }
     }
     return true;
+}
+
+bool Red::indicadosEsClique(vector<int>& K, int idx_K, vector<int>& indicados) {
+    // Veo si los elementos de K con Indicados==1 conforman un Clique
+    int count = 0;
+    for (int i=idx_K+1; i<K.size(); i++) {
+        if(indicados[i]==1){
+            count++;
+            for (int j=i+1; j<K.size(); j++) {
+                if (indicados[j]==1 and !sonAmigos(K[i], K[j]))
+                    return false;
+            }
+        }
+    }
+    if (count > 0){
+        return true;
+    }
+    else {
+        return false;
+    }
+}
+
+bool Red::noIndicadosEsClique(vector<int>& K, int idx_K, vector<int>& noIndicados) {
+    // Mismo que indicados, pero donde noIndicados==0
+    int count = 0;
+    for (int i=idx_K+1; i<K.size(); i++) {
+        if(noIndicados[i]==0){
+            count++;
+            for (int j=i+1; j<K.size(); j++) {
+                if (noIndicados[j]==0 and !sonAmigos(K[i], K[j]))
+                    return false;
+            }
+        }
+    }
+    if (count > 0){
+        return true;
+    }
+    else {
+        return false;
+    }
+
 }

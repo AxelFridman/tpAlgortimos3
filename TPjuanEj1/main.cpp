@@ -10,16 +10,16 @@ int main(int argc, char** argv){
 
     //char* archivo;
     string archivo;
-    cout << "Entrar archivo: ";
-    cin >> archivo;
+    //cout << "Entrar archivo: ";
+    //cin >> archivo;
 
     //Red lared(argv[1]);
 
 //    Red lared(archivo);
-//    //Red lared("../instancias/brock200_2.clq");
-//    ejercicio1(lared);
+    Red lared("../instancias/brock200_2.clq");
+    ejercicio1(lared);
 
-    Actividades Actividades(archivo);
-    cout << Actividades.ejer3_4() << endl;
-    Actividades.mostrarSolucion();
+    //Actividades Actividades(archivo);
+    //cout << Actividades.ejer3_4() << endl;
+    //Actividades.mostrarSolucion();
 }

@@ -5,6 +5,7 @@
 #include "tp1.h"
 //Siguiente linea solo para Windows
 #include <ctime>
+#include <bits/stdc++.h> // Usada para sort
 using namespace std;
 
 int infl_max; // Se inicializa la variable del grupo con mayor influencia
@@ -115,15 +116,17 @@ void ejercicio1(Red& red){ // La idea de esta funcion es que recibe el tipo red 
     }
     mergeSort(K, red); // Los ordeno de manera ascendente.
     revertirOrden(K); // Los doy vuelta para que sea descendiente. Osea de mayor influencia para abajo.
-    visualizarVector(K, red);
+    //visualizarVector(K, red);
     int infl = 0; // Seteo la influencia de la clique actual como  0
     infl_max = 0; // Y la influencia max global tambien.
     Q_max.clear(); // En caso de que me haya quedado algo guardado, repto que Qmax sea el conjunto vacio.
 
-    buscarMaxInfl (Q, K, infl, red); // Y llamo a la funcion con los parametros 'completos'.
+    //buscarMaxInfl (Q, K, infl, red); // Y llamo a la funcion con los parametros 'completos'.
+    vector<int> usados(K.size(), 0);
+    buscarMaxInfl (Q, K, 0, usados, infl, red);
     // Esta funcion automaticamente actualizara qmax y infl_max entonces es solo cuestion de imprimirlos
     cout<<"Influencia maxima es: "<<infl_max<<endl;
-    cout<<"La clique mas influyencte: ";
+    cout<<"La clique mas influyente: ";
     for (int i: Q_max) // Imprime todos los participantes de la clique mas influyente.
         cout<<i<<" ";
     cout<<endl;
@@ -132,6 +135,7 @@ void ejercicio1(Red& red){ // La idea de esta funcion es que recibe el tipo red 
     //Siguiente linea solo para Windows
     cout<<"Tiempo: "<<double (t1-t0)/CLOCKS_PER_SEC<<endl;
 }
+
 int sumarInfluenciasDe(vector<int>& K, Red& red){
     int res = 0;
     for(int v: K){
@@ -140,41 +144,199 @@ int sumarInfluenciasDe(vector<int>& K, Red& red){
     return res;
 }
 
-void buscarMaxInfl (set<int>& Q, vector<int>& K, int infl, Red& red){ // Funcion que busca maximique clique a tarves de ir partiendo todos los pendientes en si
+int sumarInfluenciasDe(vector<int>& K, int idx_K, vector<int>& usados, Red& red){
+    int res = 0;
+    for(int i=idx_K+1; i<= K.size()-1; i++){
+        if(usados[i] == 0){
+            // Solo sumo los elementos de K que no hayan sido pasados a Q
+            res += red.p(K[i]);
+        }
+    }
+    return res;
+}
+
+bool sonTodosAmigosDe(int i, vector<int>& K, Red& red, vector<int>& toErase){
+    // Devuelve true si todos los elementos de un vector de actores son amigos
+    // del actor en la posicion i, ignorando todos los indices en toErase
+    bool res=true;
+    int j=0;
+
+    while(j<= K.size() && res){
+        if(i != j and count(toErase.begin(), toErase.end(), j) == 0)
+            res = res * red.sonAmigos(K[i], K[j]);
+        j+=1;
+    }
+    return res;
+}
+
+bool sonTodosAmigosDe(int idx, vector<int>& K, vector<int>& usados, Red& red){
+    // Devuelve true si todos los elementos de un vector de actores son amigos
+    // del actor en la posicion i, ignorando todos los indices en usados
+    bool res=true;
+    int j=0;
+
+    while(j <= K.size() && res){
+        if(usados[j] == 0 and j != idx){
+            // Solo veo los elementos k_j de K que no hayan sido pasados a Q
+            res = res * red.sonAmigos(K[idx], K[j]);
+        }
+        j+=1;
+    }
+    return res;
+}
+
+int sum(vector<int> v){
+    // Devuelve la suma de todos los elementos de v
+    return accumulate(v.begin(), v.end(), 0);
+}
+
+bool todos_unos(vector<int> v){
+    // Devuelve true si todos los elementos de v son distintos de cero
+    for(int b: v){
+        if(b==0){
+            return false;
+        }
+    }
+    return true;
+}
+
+vector<int> amigosDexEnY(int idx_K, vector<int>& K, vector<int>& usadosi, Red& red){ // Funcion que devuelve todos amigos de una persona entre un vector de personas.
+    //vector<int> res = {}; // originalmente nadie
+    vector<int> res(K.size(), 0);
+    for (int j=idx_K+1; j <= K.size()-1; j++) { // y por cada persona del grupo le pregunto si es amigo de v
+        if (usadosi[j]==0){
+            if (red.sonAmigos(K[idx_K], K[j])){
+                // Si es amigo, lo marco en el vector res, pero todavía no lo uso
+                res[j] = 1;
+            }
+            else{
+                // A los no amigos de K[idx_K] los "saco" de los disponibles (ie. los marco como usados)
+                usadosi[j] = 1;
+            }
+        }
+    }
+    return res;
+}
+
+int agregarCliqueDeAmigos(set<int>& Qi, vector<int>& K, int idx_K, vector<int>& usadosi, vector<int>&  amigosDev, Red& red){ //La idea de esta funcion son 2 cosas.
+    //por un lado actualizar la influencia de k, sumando toda su influencia.
+    // y tambien llevar todos los elementos de k en q.
+    int res = 0;
+    for (int i=idx_K+1; i < K.size(); i++){
+        if (amigosDev[i]==1){
+            res += red.p(K[i]); // Sumo todas las influencias de cada persona en k
+            Qi.insert(K[i]); // ademas para cada persona en k la agrego a q
+            usadosi[i] = 1;
+        }
+    }
+    //Ki.clear(); // vacio k para que sea conjunto vacio
+    return res; // devuelvo la inflencia de todos los k originales juntos.
+}
+
+int agregarTodoKClique(set<int>& Q, vector<int>& K, int idx_K, vector<int>& usados, Red& red){ //La idea de esta funcion son 2 cosas.
+    //por un lado actualizar la influencia de k, sumando toda su influencia.
+    // y tambien llevar todos los elementos de k en q.
+    int res = 0;
+    for (int i=idx_K+1; i < K.size(); i++){
+        if (usados[i]==0){
+            res += red.p(K[i]); // Sumo todas las influencias de cada persona en k
+            Q.insert(K[i]); // ademas para cada persona en k la agrego a q
+            usados[i] = 1;
+        }
+    }
+    //Ki.clear(); // vacio k para que sea conjunto vacio
+    return res; // devuelvo la inflencia de todos los k originales juntos.
+}
+
+void buscarMaxInfl (set<int>& Q, vector<int>& K, int idx_K, vector<int>& usados, int infl, Red& red){ // Funcion que busca maximique clique a tarves de ir partiendo todos los pendientes en si
                                                                       // los puedo agregar a mi clique o no e iterando.
-    if(K.size()==0){ // Caso base, si ya no me queda nadie mas posible para agregar
+    //if(K.size()==0){ // Caso base, si ya no me queda nadie mas posible para agregar
+    //cout << sum(usados) << endl;
+
+    if(todos_unos(usados)){
         if (infl > infl_max){ // Entonces me pregunto si la influencia de este grupo es mas que la maxima
+            /*
+            cout << "idx_K: " << idx_K << endl << endl;
+            for(int u: usados){
+                cout << u << " ";
+            }
+            cout << endl;
+            */
             infl_max = infl; // Si lo es, actualizo ambas variables globales.
             Q_max = Q;
         }
     }
     else{ // Caso contrario en el que SI tengo a alguien que seria potencial para agregar a mi clique.
-        if(infl + sumarInfluenciasDe(K, red) < infl_max){
+        if(infl + sumarInfluenciasDe(K, idx_K, usados, red) < infl_max){
             // Poda pedida en el tp para reducir espacio de busqueda
             return;
         }
 
-        int v = K[0]; // Lo tomo a ese alguien como el mas influyente que tengo disponible.
-        K.erase(K.begin()); // Y lo saco de los restantes
-
+        int v = K[idx_K]; // Lo tomo a ese alguien como el mas influyente que tengo disponible.
+        //K.erase(K.begin()); // Y lo saco de los restantes  // Nota: El erase borra la primera posicion, pero mueve todos los valores siguientes una posición, por lo que tarda O(#K-1) en borrar un elemento.
+        usados[idx_K] = 1;
+        vector<int> usadosi = usados; // El elemento idx_K de K queda SIEMPRE marcado como usado, en cualquiera de las dos ramas
         set<int> Qi = Q; // Me copio el set de la clique hasta el momento
         Qi.insert(v); // Solo que a esta le agrego ADEMAS  v, el mayor influyente disponible de los usuarios en este momento.
-        vector<int> Ki = amigosDexEnY(v,K, red); // tomo todos los amigos de la persona v en K, y me los guardo en Ki.
+        //vector<int> Ki = amigosDexEnY(idx_K, K, red); // tomo todos los amigos de la persona v en K, y me los guardo en Ki.
+        vector<int> amigosDev = amigosDexEnY(idx_K, K, usadosi, red); // Devuelve un vector de unos y ceros indicando los amigos, y marca los no-amigos como usados en usadosi
+
+        /*
+        cout << "amigosDev: " << v << " suman:"<< sum(amigosDev) << endl;
+        for(int u: amigosDev){
+            cout << u << " ";
+        }
+        cout << endl;
+        return;
+        */
         int infli = infl + red.p(v); // Como esta es la rama en donde asumo que V es parte de la clique,
                                     // le agrego a la influencia actual la influencia de v
+        /*
+        //vector<int> toErase = {};
+        for (int i=0; i < K.size(); i++){
+            //if(sonTodosAmigosDe(i, K, red, toErase)){
+            if(sonTodosAmigosDe(i, K, usadosi, red)){
+                Qi.insert(K[i]);
+                vector<int> Ki_ = amigosDexEnY(K[i], K, usadosi, red);  // TODO: Revisar esto!
+                infli += red.p(K[i]);
+                //toErase.push_back(i);
+                usadosi[i] = 1;
+            }
+        }
+        */
+        // TODO: Ver cómo hacer esto de abajo! <<<<<<<<<<<<<<<<< !!!
 
+        /*vector<int> Ki = {};
+        for(int i=idx_K; i < K.size(); i++){
+            if(usadosi[i]==0 and amigosDev[i]==1){
+                Ki.push_back(K[i]);
+                //usadosi[i] = 1; // Como estos elementos van a ser agregados luego, ya los marco como usados
+            }
+        }*/
 
-
-        if (red.esClique(Ki)){ // Si en Ki todos son amigos con todos debo actualizar influencia y ponerlos todos en Q
-            infli += agregarTodosLosKenQeInfluenciaK(Qi, Ki, red);
+        if (red.indicadosEsClique(K, idx_K, amigosDev)){ // Si en Ki todos son amigos con todos debo actualizar influencia y ponerlos todos en Q
+            //cout << infli << " ";
+            infli += agregarCliqueDeAmigos(Qi, K, idx_K, usadosi, amigosDev, red);
+            //cout << infli << endl;
+            //cout << "entra aca" << endl;
         }
 
-        if (red.esClique(K)){ // Si en K todos son amigos con todos debo actualizar influencia y ponerlos todos en K
-            infl += agregarTodosLosKenQeInfluenciaK(Q,K,red);
+        // Si en K todos son amigos con todos debo actualizar influencia y ponerlos todos en Q
+        if (red.noIndicadosEsClique(K, idx_K, usados)){
+            //cout << infl << " ";
+            infl += agregarTodoKClique(Q, K, idx_K, usados, red);
+            //cout << infl << " idx_K:" << idx_K << endl;
+            //cout << "entra aca tambien" << endl;
         }
 
-        buscarMaxInfl(Qi, Ki, infli,red); // Finalmente llamo al lado en donde agrego a v y considero el resto de posibilidades.
-        buscarMaxInfl(Q, K, infl,red); // idem con el lado que no agrego a v.
+        idx_K = idx_K + 1; // Siempre me muevo al menos un lugar en K
+        buscarMaxInfl(Q, K, idx_K, usados, infl, red); // Caso en que no agrego a v.
+
+        // Salteo los k_i que ya hayan sido usados y busco el primero libre
+        while(usadosi[idx_K]==1 and idx_K <= K.size()-1) {
+            idx_K = idx_K + 1;
+        }
+        buscarMaxInfl(Qi, K, idx_K, usadosi,infli, red); // Finalmente llamo al lado en donde agrego a v y considero el resto de posibilidades.
     }
 }
 
@@ -186,6 +348,8 @@ vector<int> amigosDexEnY(int v, vector<int>& K, Red& red){ // Funcion que devuel
     }
     return res;
 }
+
+
 
 int agregarTodosLosKenQeInfluenciaK(set<int>& Qi, vector<int>& Ki, Red& red){ //La idea de esta funcion son 2 cosas.
                                                                 //por un lado actualizar la influencia de k, sumando toda su influencia.

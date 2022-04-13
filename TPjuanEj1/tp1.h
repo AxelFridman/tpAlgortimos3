@@ -5,7 +5,7 @@
 
 void ejercicio1(Red& red);
 
-void buscarMaxInfl (set<int>& Q, vector<int>& K, int infl, Red&);
+void buscarMaxInfl (set<int>& Q, vector<int>& K, int idx_K, vector<int>& usados, int infl, Red&);
 
 vector<int> amigosDexEnY(int v, vector<int>& K, Red&);
 
