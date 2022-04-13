@@ -4,6 +4,7 @@
 //#include <cstdlib>
 #include <iostream>
 #include <vector>
+#include <list>
 //#include <sys/stat.h>
 //#include <sys/errno.h>
 //#include <dirent.h>
@@ -70,10 +71,10 @@ int Red::p(int i) {
     return _p[i-1];
 }
 
-bool Red::esClique(vector<int> & K) {
-    for (int i=0; i<K.size(); i++) {
-        for (int j=i+1; j<K.size(); j++) {
-            if (!sonAmigos(K[i], K[j]))
+bool Red::esClique(list<int> & K) {
+    for (int k_i: K) {
+        for (int k_j: K) {
+            if (!sonAmigos(k_i, k_j))
                 return false;
         }
     }

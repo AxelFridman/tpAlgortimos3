@@ -11,15 +11,15 @@ int main(int argc, char** argv){
     //char* archivo;
     string archivo;
     cout << "Entrar archivo: ";
-    cin >> archivo;
+    //cin >> archivo;
 
     //Red lared(argv[1]);
 
     //Red lared(archivo);
-    //Red lared("../instancias/brock200_2.clq");
-    //ejercicio1(lared);
+    Red lared("../instancias/brock200_2.clq");
+    ejercicio1(lared);
 
-    Actividades Actividades(archivo);
+    /*Actividades Actividades(archivo);
     cout<<endl<<"----------------------------------------------------------------------------------------"<<endl;
     cout << "Ejercicio 3-) 4:" << endl;
     Actividades.ejer3_4();
@@ -32,5 +32,5 @@ int main(int argc, char** argv){
     cout<<endl<<"-----------------------------------------------------------------------------------------"<<endl;
     Actividades.reiniciarMem();
     cout<<"Ejercicio 3-) 6:"<<endl;
-    Actividades.ejer3_6();
+    Actividades.ejer3_6();*/
 }

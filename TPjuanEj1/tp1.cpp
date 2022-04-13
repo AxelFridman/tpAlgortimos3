@@ -1,14 +1,17 @@
 #include <set>
 #include <vector>
+#include <list>
 #include "red.h"
 #include <iostream>
 #include "tp1.h"
+
 //Siguiente linea solo para Windows
 #include <ctime>
 using namespace std;
 
 int infl_max; // Se inicializa la variable del grupo con mayor influencia
 set<int> Q_max; // Y el grupo correspondiente a esa mayor influencia.
+Red red_global("../instancias/brock200_2.clq"); // Necesario para usar en la funcion de comparacion al ordenar K
 // Ambos necesarios que sean de un scope global
 
 
@@ -17,12 +20,18 @@ set<int> Q_max; // Y el grupo correspondiente a esa mayor influencia.
 // _________________________________________________________________________________________________________________________________________
 
 // COMIENZO FUNCIONES AUXILIARES:
-void visualizarVector(const vector<int> v, Red r){
-    for(int i=0;i<v.size();i++){
-        std :: cout << " Es el nodo "<<v[i] << " y su influencia es " << r.p(v[i]) ;
-        std :: cout << " "<< endl ;
+void visualizarVector(const list<int> v, Red r){
+    for(int v_i: v){
+        cout << " Es el nodo " << v_i << " y su influencia es " << r.p(v_i) ;
+        cout << " "<< endl ;
     }
-    std :: cout << " "<< endl ;
+    cout << " "<< endl ;
+}
+
+// Comparacion para ordenar
+bool compare_actors_importances(const int& first, const int& second)
+{
+    return ( red_global.p(first) < red_global.p(second) );
 }
 
 template<typename tipo>
@@ -109,12 +118,15 @@ void ejercicio1(Red& red){ // La idea de esta funcion es que recibe el tipo red 
     //Siguiente linea solo para Windows
     t0 = clock();
     set<int> Q; // Seteo a Q como el conjunto vacio pues son los participes de la clique actual.
-    vector<int> K = {};
+    list<int> K = {};
     for (int i: red.usuarios()){
         K.push_back(i); // Mientras que K comienzan siendo todos los usuarios de la red.
     }
-    mergeSort(K, red); // Los ordeno de manera ascendente.
-    revertirOrden(K); // Los doy vuelta para que sea descendiente. Osea de mayor influencia para abajo.
+    //mergeSort(K, red); // Los ordeno de manera ascendente.
+    //revertirOrden(K); // Los doy vuelta para que sea descendiente. Osea de mayor influencia para abajo.
+    red_global = red;
+    K.sort(compare_actors_importances);
+    K.reverse();
     visualizarVector(K, red);
     int infl = 0; // Seteo la influencia de la clique actual como  0
     infl_max = 0; // Y la influencia max global tambien.
@@ -132,7 +144,7 @@ void ejercicio1(Red& red){ // La idea de esta funcion es que recibe el tipo red 
     //Siguiente linea solo para Windows
     cout<<"Tiempo: "<<double (t1-t0)/CLOCKS_PER_SEC<<endl;
 }
-int sumarInfluenciasDe(vector<int>& K, Red& red){
+int sumarInfluenciasDe(list<int>& K, Red& red){
     int res = 0;
     for(int v: K){
         res += red.p(v);
@@ -140,7 +152,30 @@ int sumarInfluenciasDe(vector<int>& K, Red& red){
     return res;
 }
 
-void buscarMaxInfl (set<int>& Q, vector<int>& K, int infl, Red& red){ // Funcion que busca maximique clique a tarves de ir partiendo todos los pendientes en si
+
+list<int> amigosDexEnY(int v, list<int>& K, Red& red){ // Funcion que devuelve todos amigos de una persona entre un vector de personas.
+    list<int> res = {}; // originalmente nadie
+    for (int k_i: K) { // y por cada persona del grupo le pregunto si es amigo de v
+        if (red.sonAmigos(v, k_i))
+            res.push_back(k_i); // si es amigo de el lo agrego a la respuesta.
+    }
+    return res;
+}
+
+int agregarTodosLosKenQeInfluenciaK(set<int>& Qi, list<int>& Ki, Red& red){ //La idea de esta funcion son 2 cosas.
+    //por un lado actualizar la influencia de k, sumando toda su influencia.
+    // y tambien llevar todos los elementos de k en q.
+    int res = 0;
+    for (int ki_i: Ki){
+        res += red.p(ki_i); // Sumo todas las influencias de cada persona en k
+        Qi.insert(ki_i); // ademas para cada persona en k la agrego a q
+    }
+    Ki.clear(); // vacio k para que sea conjunto vacio
+    return res; // devuelvo la inflencia de todos los k originales juntos.
+}
+
+
+void buscarMaxInfl (set<int>& Q, list<int>& K, int infl, Red& red){ // Funcion que busca maximique clique a tarves de ir partiendo todos los pendientes en si
                                                                       // los puedo agregar a mi clique o no e iterando.
     if(K.size()==0){ // Caso base, si ya no me queda nadie mas posible para agregar
         if (infl > infl_max){ // Entonces me pregunto si la influencia de este grupo es mas que la maxima
@@ -154,14 +189,16 @@ void buscarMaxInfl (set<int>& Q, vector<int>& K, int infl, Red& red){ // Funcion
             return;
         }
 
-        int v = K[0]; // Lo tomo a ese alguien como el mas influyente que tengo disponible.
-        K.erase(K.begin()); // Y lo saco de los restantes
+        int v = K.front(); // Lo tomo a ese alguien como el mas influyente que tengo disponible.
+        K.pop_front(); // Y lo saco de los restantes
 
         set<int> Qi = Q; // Me copio el set de la clique hasta el momento
         Qi.insert(v); // Solo que a esta le agrego ADEMAS  v, el mayor influyente disponible de los usuarios en este momento.
-        vector<int> Ki = amigosDexEnY(v,K, red); // tomo todos los amigos de la persona v en K, y me los guardo en Ki.
+        list<int> Ki = amigosDexEnY(v,K, red); // tomo todos los amigos de la persona v en K, y me los guardo en Ki.
         int infli = infl + red.p(v); // Como esta es la rama en donde asumo que V es parte de la clique,
                                     // le agrego a la influencia actual la influencia de v
+
+
 
 
 
@@ -173,30 +210,9 @@ void buscarMaxInfl (set<int>& Q, vector<int>& K, int infl, Red& red){ // Funcion
             infl += agregarTodosLosKenQeInfluenciaK(Q,K,red);
         }
 
-        buscarMaxInfl(Qi, Ki, infli,red); // Finalmente llamo al lado en donde agrego a v y considero el resto de posibilidades.
-        buscarMaxInfl(Q, K, infl,red); // idem con el lado que no agrego a v.
+        buscarMaxInfl(Qi, Ki, infli, red); // Finalmente llamo al lado en donde agrego a v y considero el resto de posibilidades.
+        buscarMaxInfl(Q, K, infl, red); // idem con el lado que no agrego a v.
     }
-}
-
-vector<int> amigosDexEnY(int v, vector<int>& K, Red& red){ // Funcion que devuelve todos amigos de una persona entre un vector de personas.
-    vector<int> res = {}; // originalmente nadie
-    for (int i=0; i<K.size(); i++) { // y por cada persona del grupo le pregunto si es amigo de v
-        if (red.sonAmigos(v,K[i]))
-            res.push_back(K[i]); // si es amigo de el lo agrego a la respuesta.
-    }
-    return res;
-}
-
-int agregarTodosLosKenQeInfluenciaK(set<int>& Qi, vector<int>& Ki, Red& red){ //La idea de esta funcion son 2 cosas.
-                                                                //por un lado actualizar la influencia de k, sumando toda su influencia.
-                                                                // y tambien llevar todos los elementos de k en q.
-    int res = 0;
-    for (int i=0; i<Ki.size(); i++){
-        res += red.p(Ki[i]); // Sumo todas las influencias de cada persona en k
-        Qi.insert(Ki[i]); // ademas para cada persona en k la agrego a q
-    }
-    Ki.clear(); // vacio k para que sea conjunto vacio
-    return res; // devuelvo la inflencia de todos los k originales juntos.
 }
 
 /*void pasarAlgunosKenQyActualizarInfluencia(vector<int> &K, set<int> &Q, int &inflDeQ, Red red){

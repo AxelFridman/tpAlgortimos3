@@ -5,11 +5,11 @@
 
 void ejercicio1(Red& red);
 
-void buscarMaxInfl (set<int>& Q, vector<int>& K, int infl, Red&);
+void buscarMaxInfl (set<int>& Q, list<int>& K, int infl, Red&);
 
-vector<int> amigosDexEnY(int v, vector<int>& K, Red&);
+list<int> amigosDexEnY(int v, list<int>& K, Red&);
 
-int agregarTodosLosKenQeInfluenciaK(set<int>&, vector<int>&, Red&);
+int agregarTodosLosKenQeInfluenciaK(set<int>&, list<int>&, Red&);
 
-void pasarAlgunosKenQyActualizarInfluencia(vector<int>&, set<int>&, int&, Red);
+void pasarAlgunosKenQyActualizarInfluencia(list<int>&, set<int>&, int&, Red);
 #endif //TPJUANEJ1_TP1_H
