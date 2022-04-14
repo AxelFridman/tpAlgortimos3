@@ -17,7 +17,12 @@ int main(int argc, char** argv){
     Red lared("../instancias/brock200_2.clq");
     //Red lared("../instancias/brock200_1.clq");
     //Red lared("../instancias/C125.9.clq");
-    ejercicio1(lared);
+
+    // Ejercicio 1: Actores
+    //ejercicio1(lared);
+
+    // Ejercicio 2: Independientes
+    ejercicio2(lared);
 
     /*Actividades Actividades(archivo);
     cout<<endl<<"----------------------------------------------------------------------------------------"<<endl;

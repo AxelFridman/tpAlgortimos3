@@ -79,8 +79,6 @@ int Red::p(int i) {
 }
 
 bool Red::esClique(list<int> & Kx) {
-    // TODO: Revisar red.esClique() para que no haga comparaciones repetidas
-    // TODO: ie. que el for de adentro arranque desde el siguiente al de afuera
     for (list<int>::iterator it = Kx.begin(); it != Kx.end(); it++) {
         for (list<int>::iterator it2 = next(it, 1); it2 != Kx.end(); it2++) {
             if (!sonAmigos(*it, *it2))

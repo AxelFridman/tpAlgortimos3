@@ -43,9 +43,6 @@ bool compare_actors_importances(const int &first, const int &second) {
     return (red_global.p(first) < red_global.p(second));
 }
 
-
-// FIN FUNCIONES AUXILIARES AJENAS AL TP.
-// _________________________________________________________________________________________________________________________________________
 // _________________________________________________________________________________________________________________________________________
 
 void ejercicio1(Red &red) {
@@ -64,7 +61,9 @@ void ejercicio1(Red &red) {
 
     // Ordenamiento de K
     red_global = red;
+    // Ordeno de forma ASCENDENTE wrt importancia
     K.sort(compare_actors_importances);
+    // Doy vuelta el orden (queda DESCENDENTE).
     K.reverse();
 
     //visualizarVector(K, red);
@@ -84,6 +83,97 @@ void ejercicio1(Red &red) {
     // Esta funcion automaticamente actualizara Q_max e infl_max
     buscarMaxInfl(Q, K, infl, red);
 
+    // Muestro resultados en consola
+    cout << "Influencia máxima es: " << infl_max << endl;
+    cout << "La clique más influyente: ";
+    for (int i: Q_max) // Imprime todos los participantes de la clique mas influyente.
+        cout << i << " ";
+    cout << endl;
+
+    t1 = clock();
+    cout << "Tiempo: " << double(t1 - t0) / CLOCKS_PER_SEC << endl;
+}
+
+
+void ejercicio2(Red &red) {
+    // Esta funcion recibe el tipo red y devuelve la maxima clique y cual es su influencia total.
+    unsigned t0, t1;
+
+    t0 = clock();
+
+    set<int> Q; // Seteo a Q como el conjunto vacio pues son los participes de la clique actual.
+    list<list<int>> K = {};
+    list<int> actores = {};
+
+    for (int a_i: red.usuarios()) {
+        actores.push_back(a_i);
+    }
+
+    // Quiero separar a los actores en conjuntos I_i independientes
+    // Ordenamiento de actores
+    red_global = red;
+    // Ordeno de forma ASCENDENTE wrt importancia
+    actores.sort(compare_actors_importances);
+    // Doy vuelta el orden (queda DESCENDENTE)
+    actores.reverse();
+
+    list<int>::iterator it = actores.begin();
+    list<int>::iterator it2;
+    while (it != actores.end()){
+        list<int> I_i = {};
+        I_i.push_back(*it);
+
+        // Agrego a I_i todos los no amigos de *it
+        it2 = next(it, 1);
+
+        while (it2 != actores.end()){
+            if (!red.sonAmigos(*it, *it2)){
+                I_i.push_back(*it2);
+                // Lo borro y avanzo al siguiente
+                it2 = actores.erase(it2);
+            }
+            else{
+                it2 = next(it2, 1);
+            }
+
+        }
+        // Lo borro y avanzo al siguiente
+        it = actores.erase(it);
+
+        K.push_back(I_i);
+    }
+
+    // TODO Revisar que cuando meto los I_i en K, efectivamernte los esté copiando y no pisando la referencia una y otra vez
+
+    // Seteo la influencia de la clique actual como 0
+    int infl = 0;
+
+    // Inicializo Q_max
+    Q_max.clear();
+
+    // Me aseguro que K comience cumpliendo sus invariantes.
+    // Q comienza conteniendo a todos los amigos de todos.
+    // O sea que todos los I_i que contengan un único elemento, deben ser pasados a Q (pues son amigos de todos).
+    list<list<int>>::iterator itK = K.begin();
+    list<int> I_i = {};
+    while(itK != K.end()){
+        I_i = *itK;
+        if(I_i.size() == 1){
+            // Lo meto en Q, y borro ese I_i
+            Q.insert(I_i.front());
+            itK = K.erase(itK);
+        }
+        else{
+            itK = next(itK, 1);
+        }
+    }
+
+    // Todos los I_i en K tienen ahora al menos 2 elementos
+    infl_max = infl;
+
+    // Llamada a función recursiva
+    // Esta funcion automaticamente actualizara Q_max e infl_max
+    buscarMaxInflEnIndependientes(Q, K, infl, red);
 
     // Muestro resultados en consola
     cout << "Influencia máxima es: " << infl_max << endl;
@@ -103,9 +193,19 @@ int sumarInfluenciasDe(list<int> &K, Red &red) {
     }
     return res;
 }
+int sumarInfluenciasDeIndependientes(list<list<int>> &K, Red &red) {
+    int res = 0;
+    int v;
+    // Sumo las influencias del primer elemento de cada I_i en K
+    for (list<int> I_i: K) {
+        // El primer elemento es siempre el mayor
+        v = I_i.front();
+        res += red.p(v);
+    }
+    return res;
+}
 
-list<int> amigosDexEnY(int v, list<int> &K,
-                       Red &red) { // Funcion que devuelve todos amigos de una persona entre un vector de personas.
+list<int> amigosDexEnY(int v, list<int> &K, Red &red) { // Funcion que devuelve todos amigos de una persona entre un vector de personas.
     list<int> res = {}; // originalmente nadie
     for (int k_i: K) { // y por cada persona del grupo le pregunto si es amigo de v
         if (red.sonAmigos(v, k_i))
@@ -170,8 +270,8 @@ void agregarCadaAmigoDeTodosLosDemasEnK(set<int> &Qx, list<int> &Kx, int &inflx,
 
 }
 
-void buscarMaxInfl(set<int> &Q, list<int> &K, int infl,
-                   Red &red) { // Funcion que busca maximique clique a tarves de ir partiendo todos los pendientes en si
+void buscarMaxInfl(set<int> &Q, list<int> &K, int infl, Red &red) {
+    // Funcion que busca maximique clique a tarves de ir partiendo todos los pendientes en si
     // los puedo agregar a mi clique o no e iterando.
     if (K.size() == 0) { // Caso base, si ya no me queda nadie mas posible para agregar
         if (infl > infl_max) { // Entonces me pregunto si la influencia de este grupo es mas que la maxima
@@ -187,9 +287,11 @@ void buscarMaxInfl(set<int> &Q, list<int> &K, int infl,
         int v = K.front(); // Lo tomo a ese alguien como el mas influyente que tengo disponible.
         K.pop_front(); // Y lo saco de los restantes
 
-        set<int> Qi = Q; // Me copio el set de la clique hasta el momento
-        Qi.insert(
-                v); // Solo que a esta le agrego ADEMAS  v, el mayor influyente disponible de los usuarios en este momento.
+        // Me copio el set de la clique hasta el momento
+        set<int> Qi = Q;
+        // Solo que a esta le agrego ADEMAS  v, el mayor influyente disponible de los usuarios en este momento.
+        Qi.insert(v);
+
         list<int> Ki = amigosDexEnY(v, K, red); // tomo todos los amigos de la persona v en K, y me los guardo en Ki.
         // Como esta es la rama en donde asumo que V es parte de la clique,
         // le agrego a la influencia actual la influencia de v
@@ -207,5 +309,68 @@ void buscarMaxInfl(set<int> &Q, list<int> &K, int infl,
         buscarMaxInfl(Qi, Ki, infli,
                       red); // Finalmente llamo al lado en donde agrego a v y considero el resto de posibilidades.
         buscarMaxInfl(Q, K, infl, red); // idem con el lado que no agrego a v.
+    }
+}
+
+void buscarMaxInflEnIndependientes(set<int> &Q, list<list<int>> &K, int infl, Red &red) {
+    // Funcion que busca maximique clique a tarves de ir partiendo todos los pendientes en si
+    // los puedo agregar a mi clique o no e iterando.
+
+    // Caso base, si ya no me queda nadie mas posible para agregar
+    if (K.size() == 0) {
+        // Entonces me pregunto si la influencia de este grupo es mas que la maxima
+        if (infl > infl_max) {
+            // Si lo es, actualizo ambas variables globales.
+            infl_max = infl;
+            Q_max = Q;
+        }
+    } else {
+        // Todavia tengo elementos por agregar
+        if (infl + sumarInfluenciasDeIndependientes(K, red) < infl_max) {
+            // Poda pedida en el tp para reducir espacio de busqueda
+            return;
+        }
+
+        // Iterador al primer I_i
+        list<list<int>>::iterator itK = K.begin();
+        // Agarro el primer elemento del primer I_i
+        list<int>::iterator it = itK->begin();
+
+        //int v = K.front().front();
+        int v = *it;
+        // Borro este elemento del I_i
+        bool I_i_resulta_vacio = (itK->size() == 1);
+        it = itK->erase(it);
+        // Si al borrar v de I_i, I_i queda vacio, debo debo borrarlo
+
+        if(I_i_resulta_vacio){
+            // I_i es vacio. Debo borrarlo
+            K.erase(itK);
+        }
+
+        // Me copio el set de la clique hasta el momento
+        set<int> Qi = Q;
+        // En la rama derecha SOLO borro v de I_i
+        // En la rama izquierda agrego v y borro tod o I_i
+        Qi.insert(v);
+
+        list<list<int>> Ki = K;
+
+        if(!I_i_resulta_vacio){
+            // Iterador al primer I_i que quiero borrar
+            list<list<int>>::iterator itKi = Ki.begin();
+            // Borro el I_i pues ya puse en Q uno de sus elementos, y el resto son no amigos (ie: los descarto)
+            Ki.erase(itKi);
+        }
+
+        // Agrego a la influencia actual la influencia de v
+        int infli = infl + red.p(v);
+
+        // TODO: Si al K que le borré SOLO el elemento v, le queda un unico elemento, tengo que hacer algo más?
+
+        // Finalmente llamo al lado en donde agrego a v y considero el resto de posibilidades.
+        buscarMaxInflEnIndependientes(Qi, Ki, infli, red);
+        // idem con el lado que no agrego a v.
+        buscarMaxInflEnIndependientes(Q, K, infl, red);
     }
 }
