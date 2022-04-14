@@ -14,6 +14,13 @@
 using namespace std;
 
 Red::Red(string archivo){
+    if(archivo == "dummy"){
+        // Dummy instance usada en tp1.cpp para reservar espacio en memoria como instancia global necesaria para
+        // usar en la funcion de ordenamiento pasada a sort().
+        // Esta instancia no es usada, sino pisada con la instancia creada en main.
+        return;
+    }
+
     ifstream entradaRed(archivo.c_str());
     if(entradaRed.fail()){
         cout << "Error en archivo " << archivo << endl;

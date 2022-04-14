@@ -6,8 +6,6 @@
 using namespace std;
 
 int main(int argc, char** argv){
-
-
     //char* archivo;
     string archivo;
     //cout << "Entrar archivo: ";

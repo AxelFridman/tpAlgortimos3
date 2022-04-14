@@ -9,14 +9,13 @@
 #include <ctime>
 using namespace std;
 
-int infl_max; // Se inicializa la variable del grupo con mayor influencia
-set<int> Q_max; // Y el grupo correspondiente a esa mayor influencia.
-Red red_global("../instancias/brock200_2.clq"); // Necesario para usar en la funcion de comparacion al ordenar K
 // Ambos necesarios que sean de un scope global
+int infl_max;  // Se define la variable del grupo con mayor influencia
+set<int> Q_max;
 
+// Global auxiliar necesaria para usar en la funcion de comparacion al ordenar K
+Red red_global("dummy");
 
-//../../instancias/brock200_2.clq
-// _________________________________________________________________________________________________________________________________________
 // _________________________________________________________________________________________________________________________________________
 
 // COMIENZO FUNCIONES AUXILIARES:
@@ -28,110 +27,51 @@ void visualizarVector(const list<int> v, Red r){
     cout << " "<< endl ;
 }
 
+// Funcion auxiliar para debuguear el codigo. Muestra el contenido de K en consola.
+void mostrarK(list<int>& Kx, string indice) {
+    cout << endl;
+    cout << "K" << indice << ": ";
+    for (int k_i: Kx){
+        cout << k_i << " ";
+    }
+    cout << endl << endl;
+}
+
 // Comparacion para ordenar
 bool compare_actors_importances(const int& first, const int& second)
 {
     return ( red_global.p(first) < red_global.p(second) );
 }
 
-template<typename tipo>
-tipo mergeOrdenado(tipo tA, tipo tB, Red r){ // Esta funcion se encarga de unir en un mismo tipo ordenado, a 2 tipos que ya estan ordenados.
-    tipo tC; // Se crea el nuevo tipo que voy a devolver
-    int indA= 0; // Inicializo ambos indices en 0, y voy a mover siempre uno a la vez.
-    int indB= 0;
-    while( indA< tA.size() and  indB< tB.size() ){ // Mientras todavia no haya terminado de recorrer ninguno de las 2 estructuras
-        if(r.p(tA[indA])<r.p(tB[indB])){
-            tC.push_back(tA[indA]); //Agrego a mi estructura de respuesta el elemento mas chico entre ambos, y le aumento el indice.
-            indA ++;
-        }
-        else{
-            tC.push_back(tB[indB]); // Esto es lo mismo en caso de que la segunda estructura tenga el elem mas chico.
-            indB ++;
-        }
-    }
-    while( indA< tA.size()){ // Si ya termione de recorrer la segunda estr pero me queda de la primera, debo meter todos los pendientes al final.
-        tC.push_back(tA[indA]);
-        indA ++;
-    }
-
-    while( indB< tB.size()){ // Misma idea si termine la primer estructura pero tengo pendientes de la segunda.
-        tC.push_back(tB[indB]);
-        indB ++;
-    }
-    return tC; // Finalmente devuelvo la estructura que me estuve armando de tamanio (tA + tB)
-}
-
-template<typename tipo>
-void mergeSort(tipo &tA, Red r){ // Esta es una implementacion de mergesort. No es in-place. Ordena ascendente. Se pasa tipo por referencia.
-    if(tA.size()<2){ // Caso base si tengo 1 elem o 0 elem, ya esta ordenado. No debo cambiar nada.
-        return;
-    }
-    else{
-        if(tA.size() == 2){ // El segundo caso base es si tiene 2 elem, en el cual debo, o swapearlos o no, segun su orden y ya estaria.
-            if(r.p(tA[0])>r.p(tA[1])){
-                auto aux = tA[0]; // Utilizo una variable para guardar primer elem de manera auxiliar.
-                tA[0] = tA[1]; // hago swap
-                tA[1] = aux;
-            }
-        }
-        else { // Caso contrario, osea tA tiene MAS de 2 elementos
-            int mitad = int(tA.size() / 2); // Me creo un indice que me parta a tA en 2 partes iguales, o casi iguales.
-            tipo primeraParte; // Inicializo ambas mitades que me voy a generar. Por esto no es in place.
-            tipo segundaParte;
-            for(int i=0; i<tA.size(); i++){
-                if(i<mitad){
-                    primeraParte.push_back(tA[i]); // La mitad la agrego al tipo de la primer mitad
-                }
-                else{
-                    segundaParte.push_back(tA[i]); // La otra mitad del original a la segunda estructura.
-                }
-            }
-            mergeSort(primeraParte, r); // Ahora ordeno cada una de las 2 partes
-            mergeSort(segundaParte, r);
-            tA = mergeOrdenado( primeraParte, segundaParte, r); // Y finalmente las junto en una misma estructura. ahora que ambas estan ordenadas.
-        }
-    }
-}
-
-template<typename tipo>
-void swap(tipo &tA, int i, int j){ // Esta funcion recibe un tipo y 2 indices y los cambia de lugar a los elementos en esos indices.
-    auto old = tA[i]; // Utilizo valor auxiliar para no perder info de que hay en tA[i]
-    tA[i] = tA[j]; // Y luego cambio sus valores respectivos.
-    tA[j] = old;
-}
-
-template<typename tipo>
-void revertirOrden(tipo &tA){ // La idea de esta funcion es que te "da vuelta" un tipo de dato indexable.
-    for(int i=0; i<int(tA.size()/2); i++){ // Itero hasta la mitad del vector.
-        swap(tA, i, tA.size()-i-1); // Y swapeo los de una punta con el lado simetrico del otro lado, asi hasta llegar al medio.
-    }
-}
 
 // FIN FUNCIONES AUXILIARES AJENAS AL TP.
 // _________________________________________________________________________________________________________________________________________
 // _________________________________________________________________________________________________________________________________________
 
 void ejercicio1(Red& red){ // La idea de esta funcion es que recibe el tipo red y devuelve la maxima clique, y cual es su influencia total.
-    //cout<<"Usando la ultima version:"<<endl;
-    //Siguiente linea solo para Windows
     unsigned t0,t1;
-    //Siguiente linea solo para Windows
+
     t0 = clock();
+
     set<int> Q; // Seteo a Q como el conjunto vacio pues son los participes de la clique actual.
     list<int> K = {};
+
     for (int i: red.usuarios()){
-        K.push_back(i); // Mientras que K comienzan siendo todos los usuarios de la red.
+        // Mientras que K comienzan siendo todos los usuarios de la red.
+        K.push_back(i);
     }
-    //mergeSort(K, red); // Los ordeno de manera ascendente.
-    //revertirOrden(K); // Los doy vuelta para que sea descendiente. Osea de mayor influencia para abajo.
+
+
     red_global = red;
     K.sort(compare_actors_importances);
     K.reverse();
     //visualizarVector(K, red);
     int infl = 0; // Seteo la influencia de la clique actual como  0
-    infl_max = 0; // Y la influencia max global tambien.
     Q_max.clear(); // En caso de que me haya quedado algo guardado, repto que Qmax sea el conjunto vacio.
-
+    // Me aseguro que K comience cumpliendo sus invariantes.
+    // Q comienza conteniendo a todos los amigos de todos.
+    agregarCadaAmigoDeTodosLosDemasEnK(Q, K, infl, red);
+    infl_max = infl;
     buscarMaxInfl (Q, K, infl, red); // Y llamo a la funcion con los parametros 'completos'.
     // Esta funcion automaticamente actualizara qmax y infl_max entonces es solo cuestion de imprimirlos
     cout<<"Influencia máxima es: "<<infl_max<<endl;
@@ -144,6 +84,7 @@ void ejercicio1(Red& red){ // La idea de esta funcion es que recibe el tipo red 
     //Siguiente linea solo para Windows
     cout<<"Tiempo: "<<double (t1-t0)/CLOCKS_PER_SEC<<endl;
 }
+
 int sumarInfluenciasDe(list<int>& K, Red& red){
     int res = 0;
     for(int v: K){
@@ -151,7 +92,6 @@ int sumarInfluenciasDe(list<int>& K, Red& red){
     }
     return res;
 }
-
 
 list<int> amigosDexEnY(int v, list<int>& K, Red& red){ // Funcion que devuelve todos amigos de una persona entre un vector de personas.
     list<int> res = {}; // originalmente nadie
@@ -162,27 +102,12 @@ list<int> amigosDexEnY(int v, list<int>& K, Red& red){ // Funcion que devuelve t
     return res;
 }
 
-int agregarTodosLosKenQeInfluenciaK(set<int>& Qi, list<int>& Ki, Red& red){ //La idea de esta funcion son 2 cosas.
-    //por un lado actualizar la influencia de k, sumando toda su influencia.
-    // y tambien llevar todos los elementos de k en q.
-    int res = 0;
-    for (int ki_i: Ki){
-        res += red.p(ki_i); // Sumo todas las influencias de cada persona en k
-        Qi.insert(ki_i); // ademas para cada persona en k la agrego a q
-    }
-    Ki.clear(); // vacio k para que sea conjunto vacio
-    return res; // devuelvo la inflencia de todos los k originales juntos.
-}
-
 bool sonTodosAmigosDeIter(list<int>::iterator it, list<int>& Ki, Red& red){
     // Devuelve true si todos los elementos de un vector de actores son amigos
     // del actor en la posicion i, ignorando todos los indices en usados
-    //list<int>::iterator it2 = it;
     list<int>::iterator it2 = Ki.begin();
-    //it2 = next(it2, 1);
     bool res=true;
     // TODO: Completar una vez revisada la parte del codigo que usa esta funcion
-    //while(it2 != Ki.end() && res){
     while(it2 != Ki.end() && res){
         // Solo veo los elementos k_j de K que no hayan sido pasados a Q
         if (it != it2) {
@@ -193,14 +118,7 @@ bool sonTodosAmigosDeIter(list<int>::iterator it, list<int>& Ki, Red& red){
     return res;
 }
 
-void mostrarK(list<int>& Kx, string indice) {
-    cout << endl;
-    cout << "K" << indice << ": ";
-    for (int k_i: Kx){
-        cout << k_i << " ";
-    }
-    cout << endl << endl;
-}
+
 
 list<int>::iterator pasarIterDeKaQ(list<int>::iterator it, set<int>& Qx, list<int>& Kx, int& inflx, Red& red){
     Qx.insert(*it);
@@ -222,7 +140,6 @@ void agregarCadaAmigoDeTodosLosDemasEnK(set<int>& Qx, list<int>& Kx, int& inflx,
     }
 
     // Caso Kx con unico elemento
-    //mostrarK(Kx, "x");
     list<int>::iterator it = Kx.begin();
     if (Kx.size() == 1){
         // Lo agrego a Qx y sumo su influencia
@@ -237,9 +154,7 @@ void agregarCadaAmigoDeTodosLosDemasEnK(set<int>& Qx, list<int>& Kx, int& inflx,
             it = pasarIterDeKaQ(it, Qx, Kx, inflx, red);
         }
         else{
-            //cout << "antes de saltar 1: " << *it << endl;
             it = next(it, 1);
-            //cout << "luego de saltar 1: " << *it << endl;
         }
     }
 
@@ -272,42 +187,15 @@ void buscarMaxInfl (set<int>& Q, list<int>& K, int infl, Red& red){ // Funcion q
         int infli = infl + red.p(v);
 
 
-        // TODO: Completar y revisar bien este caso
-        bool activar_esto = true;
-        if (activar_esto){
+        // Esta verificacion vuelve lento al algoritmo. Desactivarla lo acelera y sigue devolviendo el valor correcto,
+        // pero no se cumple el invariante de K en cada nodo: Podrian existir actores en K que no tengan no-amigos.
+        bool activar_chequeo_amigo_de_todos = true;
+        if (activar_chequeo_amigo_de_todos){
             agregarCadaAmigoDeTodosLosDemasEnK(Qi, Ki, infli, red);
             agregarCadaAmigoDeTodosLosDemasEnK(Q, K, infl, red);
         }
-
-
-        /*if (red.esClique(Ki)){ // Si en Ki todos son amigos con todos debo actualizar influencia y ponerlos todos en Q
-            // TODO: Revisar red.esClique() para que no haga comparaciones repetidas
-            // TODO: ie. que el for de adentro arranque desde el siguiente al de afuera
-            cout << "Ki es clique! wtf!?" << endl;
-            mostrarK(Ki, "i");
-            //infli += agregarTodosLosKenQeInfluenciaK(Qi, Ki, red);
-        }
-
-        if (red.esClique(K)){ // Si en K todos son amigos con todos debo actualizar influencia y ponerlos todos en K
-            cout << "K es clique! wtf!?" << endl;
-            mostrarK(Ki, "");
-            //infl += agregarTodosLosKenQeInfluenciaK(Q,K,red);
-        }*/
 
         buscarMaxInfl(Qi, Ki, infli, red); // Finalmente llamo al lado en donde agrego a v y considero el resto de posibilidades.
         buscarMaxInfl(Q, K, infl, red); // idem con el lado que no agrego a v.
     }
 }
-
-/*void pasarAlgunosKenQyActualizarInfluencia(vector<int> &K, set<int> &Q, int &inflDeQ, Red red){
-    for (int i = 0; i < K.size(); i++) {
-        for (int j = 0; j < ; ++j) {
-            
-        }{
-            
-        }       
-    }
-}*/
-
-// ../../instancias/brock200_1.clq
-// /Users/imac/Documents/tp1algo3/TPjuanEj1/instancias/brock200_1.clq
