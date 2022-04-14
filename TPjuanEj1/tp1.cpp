@@ -112,7 +112,7 @@ void revertirOrden(tipo &tA){ // La idea de esta funcion es que te "da vuelta" u
 // _________________________________________________________________________________________________________________________________________
 
 void ejercicio1(Red& red){ // La idea de esta funcion es que recibe el tipo red y devuelve la maxima clique, y cual es su influencia total.
-    cout<<"Usando la ultima version:"<<endl;
+    //cout<<"Usando la ultima version:"<<endl;
     //Siguiente linea solo para Windows
     unsigned t0,t1;
     //Siguiente linea solo para Windows
@@ -177,17 +177,74 @@ int agregarTodosLosKenQeInfluenciaK(set<int>& Qi, list<int>& Ki, Red& red){ //La
 bool sonTodosAmigosDeIter(list<int>::iterator it, list<int>& Ki, Red& red){
     // Devuelve true si todos los elementos de un vector de actores son amigos
     // del actor en la posicion i, ignorando todos los indices en usados
-    list<int>::iterator it2 = it;
-    it2 = next(it2, 1);
+    //list<int>::iterator it2 = it;
+    list<int>::iterator it2 = Ki.begin();
+    //it2 = next(it2, 1);
     bool res=true;
     // TODO: Completar una vez revisada la parte del codigo que usa esta funcion
+    //while(it2 != Ki.end() && res){
     while(it2 != Ki.end() && res){
         // Solo veo los elementos k_j de K que no hayan sido pasados a Q
-        res = res * red.sonAmigos(*it, *it2);
+        if (it != it2) {
+            res = res && red.sonAmigos(*it, *it2);
+        }
         it2 = next(it2, 1);
     }
     return res;
 }
+
+void mostrarK(list<int>& Kx, string indice) {
+    cout << endl;
+    cout << "K" << indice << ": ";
+    for (int k_i: Kx){
+        cout << k_i << " ";
+    }
+    cout << endl << endl;
+}
+
+list<int>::iterator pasarIterDeKaQ(list<int>::iterator it, set<int>& Qx, list<int>& Kx, int& inflx, Red& red){
+    Qx.insert(*it);
+    //Ki = amigosDexEnY(*it, Ki, red);
+    inflx += red.p(*it);
+    // Borra y mueve el puntero
+    //cout << "Son todos amigos de it!" << endl;
+    //cout << "antes de borrar: " << *it << endl;
+    it = Kx.erase(it);
+
+    return it;
+}
+
+void agregarCadaAmigoDeTodosLosDemasEnK(set<int>& Qx, list<int>& Kx, int& inflx, Red& red){
+    // Caso Kx vacio
+    if (Kx.begin() == Kx.end()){
+        // Lista vacia, no hago nada
+        return;
+    }
+
+    // Caso Kx con unico elemento
+    //mostrarK(Kx, "x");
+    list<int>::iterator it = Kx.begin();
+    if (Kx.size() == 1){
+        // Lo agrego a Qx y sumo su influencia
+        it = pasarIterDeKaQ(it, Qx, Kx, inflx, red);
+        return;
+    }
+
+    // Casi Kx con 2 o más elementos
+    while (it != Kx.end()){
+        if(sonTodosAmigosDeIter(it, Kx, red)){
+            // Paso elemento a Q y devuelve iterador a siguiente elemento
+            it = pasarIterDeKaQ(it, Qx, Kx, inflx, red);
+        }
+        else{
+            //cout << "antes de saltar 1: " << *it << endl;
+            it = next(it, 1);
+            //cout << "luego de saltar 1: " << *it << endl;
+        }
+    }
+
+}
+
 
 
 void buscarMaxInfl (set<int>& Q, list<int>& K, int infl, Red& red){ // Funcion que busca maximique clique a tarves de ir partiendo todos los pendientes en si
@@ -216,35 +273,26 @@ void buscarMaxInfl (set<int>& Q, list<int>& K, int infl, Red& red){ // Funcion q
 
 
         // TODO: Completar y revisar bien este caso
-        bool activar_esto = false;
+        bool activar_esto = true;
         if (activar_esto){
-            list<int>::iterator it = Ki.begin();
-            while (it != Ki.end()){
-                if(sonTodosAmigosDeIter(it, Ki, red)){
-                    //items.erase(it++);  // alternatively, i = items.erase(i);
-                    Qi.insert(*it);
-                    // TODO: Tener cuidado con pisar Ki porque perdemos la consistencia con el iterador ya definido sobre el antiguo Ki
-                    //Ki = amigosDexEnY(*it, Ki, red);
-                    infli += red.p(*it);
-                    // Borra y mueve el puntero
-                    it = Ki.erase(it);
-                }
-                else{
-                    it = next(it, 1);
-                }
-            }
+            agregarCadaAmigoDeTodosLosDemasEnK(Qi, Ki, infli, red);
+            agregarCadaAmigoDeTodosLosDemasEnK(Q, K, infl, red);
         }
 
 
-        if (red.esClique(Ki)){ // Si en Ki todos son amigos con todos debo actualizar influencia y ponerlos todos en Q
+        /*if (red.esClique(Ki)){ // Si en Ki todos son amigos con todos debo actualizar influencia y ponerlos todos en Q
             // TODO: Revisar red.esClique() para que no haga comparaciones repetidas
             // TODO: ie. que el for de adentro arranque desde el siguiente al de afuera
-            infli += agregarTodosLosKenQeInfluenciaK(Qi, Ki, red);
+            cout << "Ki es clique! wtf!?" << endl;
+            mostrarK(Ki, "i");
+            //infli += agregarTodosLosKenQeInfluenciaK(Qi, Ki, red);
         }
 
         if (red.esClique(K)){ // Si en K todos son amigos con todos debo actualizar influencia y ponerlos todos en K
-            infl += agregarTodosLosKenQeInfluenciaK(Q,K,red);
-        }
+            cout << "K es clique! wtf!?" << endl;
+            mostrarK(Ki, "");
+            //infl += agregarTodosLosKenQeInfluenciaK(Q,K,red);
+        }*/
 
         buscarMaxInfl(Qi, Ki, infli, red); // Finalmente llamo al lado en donde agrego a v y considero el resto de posibilidades.
         buscarMaxInfl(Q, K, infl, red); // idem con el lado que no agrego a v.

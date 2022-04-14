@@ -23,7 +23,7 @@ Red::Red(string archivo){
     string nada;
     entradaRed >> nada >> nada >> _N >> _M;
 
-    cout << "N: " << _N <<  " M: " << _M << endl;
+    //cout << "N: " << _N <<  " M: " << _M << endl;
     _p = vector<int> (_N);
     _Amistades = vector<vector<bool>> (_N, vector<bool> (_N,false));
     for (int i = 0; i < _N; ++i) {
@@ -71,12 +71,12 @@ int Red::p(int i) {
     return _p[i-1];
 }
 
-bool Red::esClique(list<int> & K) {
+bool Red::esClique(list<int> & Kx) {
     // TODO: Revisar red.esClique() para que no haga comparaciones repetidas
     // TODO: ie. que el for de adentro arranque desde el siguiente al de afuera
-    for (int k_i: K) {
-        for (int k_j: K) {
-            if (!sonAmigos(k_i, k_j))
+    for (list<int>::iterator it = Kx.begin(); it != Kx.end(); it++) {
+        for (list<int>::iterator it2 = next(it, 1); it2 != Kx.end(); it2++) {
+            if (!sonAmigos(*it, *it2))
                 return false;
         }
     }
