@@ -35,7 +35,22 @@ void mostrarK(list<int> &Kx, string indice) {
     for (int k_i: Kx) {
         cout << k_i << " ";
     }
-    cout << endl << endl;
+    cout <<  endl;
+}
+
+void mostrarI_i(list<list<int>> &K) {
+    cout << endl;
+    int i = 1;
+    for(list<int> I_i: K){
+        cout << "I_" << i << ": ";
+        for (int v: I_i) {
+            cout << v << " ";
+        }
+        cout << endl;
+        i++;
+    }
+
+    cout <<  endl;
 }
 
 // Comparacion para ordenar
@@ -127,7 +142,8 @@ void ejercicio2(Red &red) {
         it2 = next(it, 1);
 
         while (it2 != actores.end()){
-            if (!red.sonAmigos(*it, *it2)){
+            //if (!red.sonAmigos(*it, *it2)){
+            if (sonTodosNoAmigosDeIter(it2, I_i, red)){
                 I_i.push_back(*it2);
                 // Lo borro y avanzo al siguiente
                 it2 = actores.erase(it2);
@@ -143,6 +159,7 @@ void ejercicio2(Red &red) {
         K.push_back(I_i);
     }
 
+    mostrarI_i(K);
     // TODO Revisar que cuando meto los I_i en K, efectivamernte los esté copiando y no pisando la referencia una y otra vez
 
     // Seteo la influencia de la clique actual como 0
@@ -154,26 +171,33 @@ void ejercicio2(Red &red) {
     // Me aseguro que K comience cumpliendo sus invariantes.
     // Q comienza conteniendo a todos los amigos de todos.
     // O sea que todos los I_i que contengan un único elemento, deben ser pasados a Q (pues son amigos de todos).
-    list<list<int>>::iterator itK = K.begin();
+    /*list<list<int>>::iterator itK = K.begin();
     list<int> I_i = {};
     while(itK != K.end()){
         I_i = *itK;
         if(I_i.size() == 1){
             // Lo meto en Q, y borro ese I_i
+            cout << "lo borro: " << I_i.front();
             Q.insert(I_i.front());
             itK = K.erase(itK);
         }
         else{
             itK = next(itK, 1);
         }
-    }
-
+    }*/
     // Todos los I_i en K tienen ahora al menos 2 elementos
     infl_max = infl;
 
     // Llamada a función recursiva
     // Esta funcion automaticamente actualizara Q_max e infl_max
     buscarMaxInflEnIndependientes(Q, K, infl, red);
+
+    // Chequeo que todos los I_i sean amigos
+    cout << endl << "Si son todos 1s, todos los I_i son listas de no amigos (son independientes)" << endl;
+    for(list<int> I_i: K){
+        cout << sonTodosNoAmigosEntreSi(I_i, red);
+    }
+    cout << endl;
 
     // Muestro resultados en consola
     cout << "Influencia máxima es: " << infl_max << endl;
@@ -198,7 +222,7 @@ int sumarInfluenciasDeIndependientes(list<list<int>> &K, Red &red) {
     int v;
     // Sumo las influencias del primer elemento de cada I_i en K
     for (list<int> I_i: K) {
-        // El primer elemento es siempre el mayor
+        // El primer elemento es siempre el de mayor influencia
         v = I_i.front();
         res += red.p(v);
     }
@@ -219,11 +243,49 @@ bool sonTodosAmigosDeIter(list<int>::iterator it, list<int> &Ki, Red &red) {
     // del actor en la posicion i, ignorando todos los indices en usados
     list<int>::iterator it2 = Ki.begin();
     bool res = true;
-    // TODO: Completar una vez revisada la parte del codigo que usa esta funcion
-    while (it2 != Ki.end() && res) {
+
+    while (it2 != Ki.end() and res) {
         // Solo veo los elementos k_j de K que no hayan sido pasados a Q
         if (it != it2) {
-            res = res && red.sonAmigos(*it, *it2);
+            res = res and red.sonAmigos(*it, *it2);
+        }
+        it2 = next(it2);
+    }
+    return res;
+}
+
+bool sonTodosAmigosDeIter(list<int>::iterator it, set<int> &Q, Red &red) {
+    // Devuelve true si todos los elementos de un vector de actores son amigos
+    // del actor en la posicion i, ignorando todos los indices en usados
+    set<int>::iterator it2 = Q.begin();
+    bool res = true;
+
+    while (it2 != Q.end() and res) {
+        res = res and red.sonAmigos(*it, *it2);
+        it2 = next(it2);
+    }
+    return res;
+}
+bool sonTodosNoAmigosEntreSi(list<int> &I_i, Red &red){
+    bool res = true;
+    list<int>::iterator it = I_i.begin();
+    while( it != I_i.end()){
+        res = res and sonTodosNoAmigosDeIter(it, I_i, red);
+        it = next(it, 1);
+    }
+    return res;
+}
+
+bool sonTodosNoAmigosDeIter(list<int>::iterator it, list<int> &I_i, Red &red) {
+    // Devuelve true si todos los elementos de un vector de actores son amigos
+    // del actor en la posicion i, ignorando todos los indices en usados
+    list<int>::iterator it2 = I_i.begin();
+    bool res = true;
+    // TODO: Completar una vez revisada la parte del codigo que usa esta funcion
+    while (it2 != I_i.end() and res) {
+        // Solo veo los elementos k_j de K que no hayan sido pasados a Q
+        if (it != it2) {
+            res = res and !red.sonAmigos(*it, *it2);
         }
         it2 = next(it2, 1);
     }
@@ -313,16 +375,16 @@ void buscarMaxInfl(set<int> &Q, list<int> &K, int infl, Red &red) {
 }
 
 void buscarMaxInflEnIndependientes(set<int> &Q, list<list<int>> &K, int infl, Red &red) {
-    // Funcion que busca maximique clique a tarves de ir partiendo todos los pendientes en si
-    // los puedo agregar a mi clique o no e iterando.
-
-    // Caso base, si ya no me queda nadie mas posible para agregar
+    // Caso base, si ya no me queda nadie mas posible para
+    //cout << K.size() << endl;
     if (K.size() == 0) {
+        cout << "Un K == 0!!!! <<<<<<<<<<<<<<<"  << endl;
         // Entonces me pregunto si la influencia de este grupo es mas que la maxima
         if (infl > infl_max) {
             // Si lo es, actualizo ambas variables globales.
             infl_max = infl;
             Q_max = Q;
+            cout << "Nuevo infl_max: " << infl_max << endl;
         }
     } else {
         // Todavia tengo elementos por agregar
@@ -332,45 +394,106 @@ void buscarMaxInflEnIndependientes(set<int> &Q, list<list<int>> &K, int infl, Re
         }
 
         // Iterador al primer I_i
-        list<list<int>>::iterator itK = K.begin();
+        list<list<int>>::iterator iterK = K.begin();
         // Agarro el primer elemento del primer I_i
-        list<int>::iterator it = itK->begin();
+        list<int>::iterator it = iterK->begin();
 
         //int v = K.front().front();
         int v = *it;
+
+
         // Borro este elemento del I_i
-        bool I_i_resulta_vacio = (itK->size() == 1);
-        it = itK->erase(it);
+        //bool I_i_resulta_vacio = (iterK->size() == 1);
+        /*cout << endl << "________" << endl;
+        cout << "________" << endl;
+        cout << "Todo:" << endl;
+        mostrarI_i(K);
+        cout << "En el que estoy parado:" << endl;
+        mostrarK(*iterK, "");
+        cout << "Size: " << iterK->size() << endl;*/
+
+        //bool I_i_resulta_vacio = (iterK->size() == 1);
+        //it = iterK->erase(it);
         // Si al borrar v de I_i, I_i queda vacio, debo debo borrarlo
 
-        if(I_i_resulta_vacio){
-            // I_i es vacio. Debo borrarlo
-            K.erase(itK);
-        }
+        //if(I_i_resulta_vacio){
+
 
         // Me copio el set de la clique hasta el momento
         set<int> Qi = Q;
-        // En la rama derecha SOLO borro v de I_i
-        // En la rama izquierda agrego v y borro tod o I_i
-        Qi.insert(v);
+        //cout << *it << " " << v << endl;
+        bool elementoValido = sonTodosAmigosDeIter(it, Q, red);
+        if(elementoValido) {
+            //cout << "v es amigo de todos: " << v << endl;
+            // En la rama derecha SOLO borro v de I_i
+            // En la rama izquierda agrego v y borro tod o I_i
+            Qi.insert(v);
+        }
+        else{
+            //cout << "v NO es amigo de todos: " << v << endl;
+        }
+
+        // Borro el elemento que habia elegido de la lista I_i correspondiente
+        it = iterK->erase(it);
+
+
+
+        bool borro_I_i_vacio = (iterK->size() == 0);
+        if (borro_I_i_vacio){
+            // I_i es vacio. Debo borrarlo
+            iterK = K.erase(iterK);
+        }
+        else{
+            //cout << "------------------------------------------------------" << endl;
+            //mostrarK(*iterK, "");
+            //cout << "Size luego de borrar bucket: " << iterK->size() << endl;
+        }
 
         list<list<int>> Ki = K;
 
-        if(!I_i_resulta_vacio){
+        if(!borro_I_i_vacio){
+            // ie: Quedaron elementos en I_i, pero ninguno es amigo del que acabo de sacar
             // Iterador al primer I_i que quiero borrar
             list<list<int>>::iterator itKi = Ki.begin();
             // Borro el I_i pues ya puse en Q uno de sus elementos, y el resto son no amigos (ie: los descarto)
-            Ki.erase(itKi);
+            itKi = Ki.erase(itKi);
         }
 
-        // Agrego a la influencia actual la influencia de v
-        int infli = infl + red.p(v);
+        bool add_v_first;
+        if (K.size() > 1){
+            list<list<int>>::iterator iterNext = next(iterK);
+            int v_nextI_i = *iterNext->begin();
+            int v_nextVal = iterK->front();
+            add_v_first = red.p(v_nextVal) > red.p(v_nextI_i);
+        }
+        else{
+            // No next I_i to choose the other path
+            add_v_first = true;
+        }
 
-        // TODO: Si al K que le borré SOLO el elemento v, le queda un unico elemento, tengo que hacer algo más?
+        if (!add_v_first){
+            // Finalmente llamo al lado en donde agrego a v y considero el resto de posibilidades.
+            if(elementoValido){
+                // Agrego a la influencia actual la influencia de v
+                int infli = infl + red.p(v);
+                // Esta rama solo se llama en caso de que se agregue un elemento a Qi
+                buscarMaxInflEnIndependientes(Qi, Ki, infli, red);
+            }
+            // idem con el lado que no agrego a v.
+            buscarMaxInflEnIndependientes(Q, K, infl, red);
+        }
+        else{
+            // idem con el lado que no agrego a v.
+            buscarMaxInflEnIndependientes(Q, K, infl, red);
+            // Finalmente llamo al lado en donde agrego a v y considero el resto de posibilidades.
+            if(elementoValido){
+                // Agrego a la influencia actual la influencia de v
+                int infli = infl + red.p(v);
+                // Esta rama solo se llama en caso de que se agregue un elemento a Qi
+                buscarMaxInflEnIndependientes(Qi, Ki, infli, red);
+            }
+        }
 
-        // Finalmente llamo al lado en donde agrego a v y considero el resto de posibilidades.
-        buscarMaxInflEnIndependientes(Qi, Ki, infli, red);
-        // idem con el lado que no agrego a v.
-        buscarMaxInflEnIndependientes(Q, K, infl, red);
+
     }
 }
