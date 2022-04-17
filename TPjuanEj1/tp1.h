@@ -6,7 +6,8 @@
 void ejercicio1(Red& red);
 void ejercicio2(Red& red);
 
-void buscarMaxInfl (set<int>& Q, list<int>& K, int infl, Red&);
+void buscarMaxInflEj1 (set<int>& Q, list<int>& K, int infl, Red&);
+void buscarMaxInflEj2 (set<int>& Q, list<int>& K, int infl, Red&);
 void buscarMaxInflEnIndependientes (set<int>& Q, list<list<int>>& K, int infl, Red&);
 
 list<int> amigosDexEnY(int v, list<int>& K, Red&);

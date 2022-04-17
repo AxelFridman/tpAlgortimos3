@@ -14,12 +14,13 @@ int main(int argc, char** argv){
     //Red lared(argv[1]);
 
     //Red lared(archivo);
-    Red lared("../instancias/brock200_2.clq");
+    //Red lared("../instancias/brock200_2.clq");
     //Red lared("../instancias/brock200_1.clq");
+    Red lared("../instancias/p_hat1500-1.clq");
     //Red lared("../instancias/C125.9.clq");
 
     // Ejercicio 1: Actores
-    //ejercicio1(lared);
+    ejercicio1(lared);
 
     // Ejercicio 2: Independientes
     ejercicio2(lared);
