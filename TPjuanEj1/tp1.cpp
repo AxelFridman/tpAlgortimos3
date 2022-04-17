@@ -250,14 +250,19 @@ int particionarYSumarInfluenciasDeIndependientes(list<int> actores, Red &red) {
         while (it2 != actores.end()){
             //if (!red.sonAmigos(*it, *it2)){
             if (sonTodosNoAmigosDeIter(it2, I_i, red)){
-                I_i.push_back(*it2);
+                // brock200_2  devuelve valor INCORRECTO con < 1
+                // p_hat1500_1 devuelve valor INCORRECTO con < 2
+                // p_hat700_2  devuelve valor INCORRECTO con < 1 (tarda 523 segs)
+                if(I_i.size() < 2){
+                    I_i.push_back(*it2);
+                }
+                //I_i.push_back(*it2);
                 // Lo borro y avanzo al siguiente
                 it2 = actores.erase(it2);
             }
             else{
                 it2 = next(it2);
             }
-
         }
         // Lo borro y avanzo al siguiente
         it = actores.erase(it);
@@ -303,7 +308,6 @@ int particionarYSumarInfluenciasDeIndependientesGreedy(list<int> actores, Red &r
             else{
                 it2 = next(it2);
             }
-
         }
         // Lo borro y avanzo al siguiente
         it = actores.erase(it);
@@ -414,7 +418,7 @@ list<int>::iterator revisarNoAmigosDev(int v, set<int> &Qx, list<int> &Kx, int &
             // Llamada recursiva a la misma funcion, para verificar todos los no amigos del que acabo de borrar
             // por los mismos motivos que llame a esta funcion en primer lugar: ver que el w borrado no sea el
             // único no amigo de alguno de los elementos restantes de K
-            it2 = revisarNoAmigosDev(w, Qx, Kx, inflx, red);
+            //it2 = revisarNoAmigosDev(w, Qx, Kx, inflx, red);
         } else {
             it2 = next(it2);
         }
@@ -422,9 +426,9 @@ list<int>::iterator revisarNoAmigosDev(int v, set<int> &Qx, list<int> &Kx, int &
     return Kx.begin();
 }
 
-list<int> amigosDevEnK(int v, set<int> &Qi, list<int> &K, int &infli, Red &red) { // Funcion que devuelve todos amigos de una persona entre un vector de personas.
+list<int> amigosDevEnK(int v, set<int> &Qi, list<int> &K, list<int> descartados, int &infli, Red &red) { // Funcion que devuelve todos amigos de una persona entre un vector de personas.
     list<int> Ki = {}; // originalmente nadie
-    list<int> descartados = {}; // originalmente nadie
+    //list<int> descartados = {}; // originalmente nadie
 
     for (int k_i: K) { // y por cada persona del grupo le pregunto si es amigo de v
         if (red.sonAmigos(v, k_i)){
@@ -537,7 +541,8 @@ void buscarMaxInflEj1(set<int> &Q, list<int> &K, int infl, Red &red) {
         // le agrego a la influencia actual la influencia de v
         int infli = infl + red.p(v);
         //list<int> Ki = K;
-        list<int> Ki = amigosDevEnK(v, Qi, K, infli, red); // tomo todos los amigos de la persona v en K, y me los guardo en Ki.
+        list<int> descartados = {};
+        list<int> Ki = amigosDevEnK(v, Qi, K, descartados, infli, red); // tomo todos los amigos de la persona v en K, y me los guardo en Ki.
 
         // Esta verificacion vuelve lento al algoritmo. Desactivarla lo acelera y sigue devolviendo el valor correcto,
         // pero no se cumple el invariante de K en cada nodo: Podrian existir actores en K que no tengan no-amigos.
@@ -545,7 +550,9 @@ void buscarMaxInflEj1(set<int> &Q, list<int> &K, int infl, Red &red) {
         if (activar_chequeo_amigo_de_todos) {
             //agregarCadaAmigoDeTodosLosDemasEnK(Qi, Ki, infli, red);
             //agregarCadaAmigoDeTodosLosDemasEnK(Q, K, infl, red);
-            revisarNoAmigosDev(v, Qi, Ki, infli, red);
+            for (int w: descartados){
+                revisarNoAmigosDev(w, Qi, Ki, infli, red);
+            }
             revisarNoAmigosDev(v, Q, K, infl, red);
         }
 
@@ -586,7 +593,8 @@ void buscarMaxInflEj2(set<int> &Q, list<int> &K, int infl, Red &red) {
         // le agrego a la influencia actual la influencia de v
         int infli = infl + red.p(v);
         //list<int> Ki = K;
-        list<int> Ki = amigosDevEnK(v, Qi, K, infli, red); // tomo todos los amigos de la persona v en K, y me los guardo en Ki.
+        list<int> descartados = {};
+        list<int> Ki = amigosDevEnK(v, Qi, K, descartados, infli, red); // tomo todos los amigos de la persona v en K, y me los guardo en Ki.
 
         // Esta verificacion vuelve lento al algoritmo. Desactivarla lo acelera y sigue devolviendo el valor correcto,
         // pero no se cumple el invariante de K en cada nodo: Podrian existir actores en K que no tengan no-amigos.
@@ -594,7 +602,9 @@ void buscarMaxInflEj2(set<int> &Q, list<int> &K, int infl, Red &red) {
         if (activar_chequeo_amigo_de_todos) {
             //agregarCadaAmigoDeTodosLosDemasEnK(Qi, Ki, infli, red);
             //agregarCadaAmigoDeTodosLosDemasEnK(Q, K, infl, red);
-            revisarNoAmigosDev(v, Qi, Ki, infli, red);
+            for(int w: descartados){
+                revisarNoAmigosDev(v, Qi, Ki, infli, red);
+            }
             revisarNoAmigosDev(v, Q, K, infl, red);
         }
 
