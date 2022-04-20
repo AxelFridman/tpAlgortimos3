@@ -6,7 +6,7 @@
 			[
 				{
 					"build" : ".",
-					"jsonFile" : "directory-.-Debug-d0094a50bb2071803777.json",
+					"jsonFile" : "directory-.-Debug-f5ebdc15457944623624.json",
 					"minimumCMakeVersion" : 
 					{
 						"string" : "3.20"
@@ -39,7 +39,7 @@
 				{
 					"directoryIndex" : 0,
 					"id" : "TPjuanEj1::@6890427a1f51a3e7e1df",
-					"jsonFile" : "target-TPjuanEj1-Debug-9a88d4724f8799f771c5.json",
+					"jsonFile" : "target-TPjuanEj1-Debug-5667c1b6c9e70bfc63d4.json",
 					"name" : "TPjuanEj1",
 					"projectIndex" : 0
 				}
@@ -49,8 +49,8 @@
 	"kind" : "codemodel",
 	"paths" : 
 	{
-		"build" : "C:/Users/Paula/Dropbox/Facu 1er 2022/Algo3/TP1/tp1algo3/TPjuanEj1",
-		"source" : "C:/Users/Paula/Dropbox/Facu 1er 2022/Algo3/TP1/tp1algo3/TPjuanEj1"
+		"build" : "/home/juan/Dropbox/Facu 1er 2022/Algo3/TP1/tp1algo3/TPjuanEj1",
+		"source" : "/home/juan/Dropbox/Facu 1er 2022/Algo3/TP1/tp1algo3/TPjuanEj1"
 	},
 	"version" : 
 	{

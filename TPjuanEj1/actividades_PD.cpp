@@ -1,19 +1,9 @@
-//
-// Created by Noé Fabián HSUEH on 06/04/2022.
-// ../instancias/instancia_2.txt
-
 #include "actividades_PD.h"
-#include <ctime>
-
-// TODO Emprolijar código
-// TODO Chequear complejidades
 
 void mostrarVector(const vector<int>& v){
-    cout <<"[ ";
     for(int i=0;i<v.size();i++){
         std :: cout << v[i] <<" ";
     }
-    std :: cout << " ]" << endl ;
 }
 
 Actividades::Actividades(string archivo) {
@@ -23,7 +13,7 @@ Actividades::Actividades(string archivo) {
         exit(0);
     }
     entradaActividades >> _N;
-//    cout << "Hay " << _N << " actividades" << endl;
+
     _S = vector<int>(_N);
     _T = vector<int>(_N);
     _B = vector<int>(_N);
@@ -33,15 +23,6 @@ Actividades::Actividades(string archivo) {
         entradaActividades >> _S[i] >> _T[i] >> _B[i];
     }
     construirW(_W);
-    cout<<endl;
-    cout<<"Vector S: ";
-    mostrarVector(_S);
-    cout<<"Vector T: ";
-    mostrarVector(_T);
-    cout<<"Vector B: ";
-    mostrarVector(_B);
-    cout<<"Vector W: ";
-    mostrarVector(_W);
 }
 
 void Actividades::construirW(vector<int> &v) {
@@ -83,11 +64,10 @@ int Actividades::buscarBeneficioMax(int i) {
 
 void Actividades::ejer3_4() {
     int res = buscarBeneficioMax(0);
-    cout<<"El maximo beneficio total es: "<< res <<endl;
+    cout<< res <<endl;
 }
 
 void Actividades::ejer3_5() {
-    cout<<"La suma maxima es: "<<endl;
     int res = bottom_up();
     cout<< res<<endl;
 }
@@ -108,8 +88,7 @@ int Actividades::bottom_up() {
 }
 
 void Actividades::ejer3_6() {
-    cout<<"La suma maxima es "<< buscarBeneficioMax(0)<<endl;
-    cout<<"Las actividades correspondientes son: "<<endl;
+    cout<< buscarBeneficioMax(0)<<endl;
     vector<int> res = reConstruccionRes();
     mostrarVector(res);
 }

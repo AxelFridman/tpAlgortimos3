@@ -1,4 +1,4 @@
-"C:\Program Files\JetBrains\CLion 2021.3.4\bin\cmake\win\bin\cmake.exe" -DCMAKE_BUILD_TYPE=Debug -G "CodeBlocks - MinGW Makefiles" "C:\Users\Paula\Dropbox\Facu 1er 2022\Algo3\TP1\tp1algo3\TPjuanEj1"
+/snap/clion/189/bin/cmake/linux/bin/cmake -DCMAKE_BUILD_TYPE=Debug -G "CodeBlocks - Unix Makefiles" -S "/home/juan/Dropbox/Facu 1er 2022/Algo3/TP1/tp1algo3/TPjuanEj1" -B "/home/juan/Dropbox/Facu 1er 2022/Algo3/TP1/tp1algo3/TPjuanEj1"
 -- Configuring done
 -- Generating done
--- Build files have been written to: C:/Users/Paula/Dropbox/Facu 1er 2022/Algo3/TP1/tp1algo3/TPjuanEj1
+-- Build files have been written to: /home/juan/Dropbox/Facu 1er 2022/Algo3/TP1/tp1algo3/TPjuanEj1

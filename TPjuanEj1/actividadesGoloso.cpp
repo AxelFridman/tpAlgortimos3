@@ -1,11 +1,10 @@
 #include "actividadesGoloso.h"
 
 void mostrarVector2(const vector<int>& v){
-    cout <<"[ ";
     for(int i=0; i<v.size(); i++){
         std :: cout << v[i] <<" ";
     }
-    std :: cout << " ]" << endl ;
+    cout<<endl;
 }
 
 ActividadesGoloso:: ActividadesGoloso(string archivo){
@@ -15,16 +14,11 @@ ActividadesGoloso:: ActividadesGoloso(string archivo){
         exit(0);
     }
     entradaActividades >> _N;
-//    cout << "Hay " << _N << " actividades" << endl;
     _S = vector<int>(_N);
     _T = vector<int>(_N);
     for (int i = 0; i < _N; ++i) {
         entradaActividades >> _S[i] >> _T[i];
     }
-    /*cout<<"Vector S: ";
-    mostrarVector2(_S);
-    cout<<"Vector T: ";
-    mostrarVector2(_T);*/
 }
 
 vector<int> ActividadesGoloso:: ordenarPorT() {
@@ -67,8 +61,6 @@ vector<int> ActividadesGoloso:: construirRes() {
 }
 
 void ActividadesGoloso:: ejer4_3() {
-    cout<<"El maximo beneficio es "<<buscarMaxBeneficio()<<endl;
-    //cout<<"Con la actvidades: ";
-    //mostrarVector2(construirRes());
-    //cout<<endl;
+    cout<<buscarMaxBeneficio()<<endl;
+    mostrarVector2(construirRes());
 }

@@ -1,7 +1,3 @@
-//
-// Created by Noé Fabián HSUEH on 06/04/2022.
-//
-
 #ifndef TPJUANEJ1_ACTIVIDADES_PD_H
 #define TPJUANEJ1_ACTIVIDADES_PD_H
 

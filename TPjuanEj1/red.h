@@ -4,11 +4,9 @@
 
 
 #include <vector>
-//#include <map>
 #include <fstream>
-//#include <algorithm>
 #include <set>
-//#include <boost/date_time.hpp>
+#include <list>
 
 using namespace std;
 
@@ -20,7 +18,7 @@ public:
     int cantUsuarios();
     int cantAmistades();
     int p(int);
-    bool esClique(vector<int>&);
+    bool esClique(list<int>&);
 
 private:
     int _N;

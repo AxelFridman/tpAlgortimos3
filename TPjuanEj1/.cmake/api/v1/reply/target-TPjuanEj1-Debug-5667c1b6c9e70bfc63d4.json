@@ -2,10 +2,7 @@
 	"artifacts" : 
 	[
 		{
-			"path" : "TPjuanEj1.exe"
-		},
-		{
-			"path" : "TPjuanEj1.pdb"
+			"path" : "TPjuanEj1"
 		}
 	],
 	"backtrace" : 1,
@@ -75,16 +72,12 @@
 			{
 				"fragment" : "",
 				"role" : "flags"
-			},
-			{
-				"fragment" : "-lkernel32 -luser32 -lgdi32 -lwinspool -lshell32 -lole32 -loleaut32 -luuid -lcomdlg32 -ladvapi32",
-				"role" : "libraries"
 			}
 		],
 		"language" : "CXX"
 	},
 	"name" : "TPjuanEj1",
-	"nameOnDisk" : "TPjuanEj1.exe",
+	"nameOnDisk" : "TPjuanEj1",
 	"paths" : 
 	{
 		"build" : ".",
